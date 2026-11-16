@@ -296,10 +296,16 @@ body[data-screen="game"] .foot { display: none; }
 }
 
 /* keyboard */
-.keyboard { --key-h: clamp(2.9rem, 6.3vh, 5.7rem); display: flex; flex-direction: column; gap: clamp(5px, .5rem, 14px); padding-bottom: .2rem; flex: none; }
-.kb-row { display: flex; justify-content: center; gap: clamp(3px, .38rem, 11px); }
+.keyboard {
+  --key-h: clamp(3.2rem, 7.4vh, 6.4rem);
+  display: flex; flex-direction: column; gap: clamp(6px, .55rem, 16px); flex: none;
+  /* use the full screen width, and let taps in the gaps reach the nearest key */
+  margin-inline: calc(clamp(.9rem, 3vw, 1.5rem) * -.55); padding: .5rem .25rem .35rem;
+  touch-action: none;
+}
+.kb-row { display: flex; justify-content: center; gap: clamp(4px, .42rem, 12px); }
 .key {
-  flex: 1 1 0; min-width: 0; max-width: 6.4rem; height: var(--key-h);
+  flex: 1 1 0; min-width: 0; max-width: 7.2rem; height: var(--key-h);
   display: flex; align-items: center; justify-content: center; gap: .4rem;
   border-radius: calc(var(--key-h) * .22);
   font-size: calc(var(--key-h) * .4); font-weight: 600; line-height: 1;
@@ -310,11 +316,11 @@ body[data-screen="game"] .foot { display: none; }
 }
 .keyboard[dir="ltr"] .key { text-transform: uppercase; }
 /* Arabic keys: taller line box + lift, so low letters are centred and never cut */
-.keyboard[dir="rtl"] .key { font-size: calc(var(--key-h) * .43); line-height: 1.5; padding-bottom: calc(var(--key-h) * .12); }
+.keyboard[dir="rtl"] .key { font-size: calc(var(--key-h) * .46); font-weight: 700; line-height: 1.5; padding-bottom: calc(var(--key-h) * .12); }
 .key.down { transform: translateY(.2rem); box-shadow: 0 .06rem 0 rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .22); background: linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, .12)); }
 .key.wide { flex: 1.65 1 0; max-width: 10rem; font-size: calc(var(--key-h) * .27); padding-bottom: 0; line-height: 1.6; }
-.keyboard[dir="rtl"] .key.wide { font-size: calc(var(--key-h) * .29); padding-bottom: 0; }
-.kb-row.actions .key { max-width: none; flex: 1; }
+.keyboard[dir="rtl"] .key.wide { font-size: calc(var(--key-h) * .32); padding-bottom: 0; }
+.kb-row.actions .key { max-width: none; flex: 1; height: calc(var(--key-h) * 1.08); }
 .kb-row.actions .key-enter { flex: 1.8; }
 .key svg { width: calc(var(--key-h) * .44); height: calc(var(--key-h) * .44); flex: none; }
 .keyboard[dir="rtl"] .key svg { transform: scaleX(-1); }
@@ -322,6 +328,18 @@ body[data-screen="game"] .foot { display: none; }
 .key[data-state="correct"] { background: linear-gradient(180deg, var(--c-correct-hi), var(--c-correct-lo)); border-color: transparent; }
 .key[data-state="present"] { background: linear-gradient(180deg, var(--c-present-hi), var(--c-present-lo)); border-color: transparent; }
 .key[data-state="absent"]  { background: rgba(255, 255, 255, .03); color: rgba(255, 255, 255, .28); border-color: rgba(255, 255, 255, .05); box-shadow: 0 .16rem 0 rgba(0, 0, 0, .3); }
+
+/* bubble that shows the typed letter above the finger */
+.key-pop {
+  position: fixed; z-index: 40; pointer-events: none;
+  min-width: 4.4rem; height: 5rem; padding: 0 .9rem .35rem; display: grid; place-items: center;
+  border-radius: 1.2rem; font-size: 2.8rem; font-weight: 700; line-height: 1.5; color: #fff;
+  background: linear-gradient(180deg, #62d687, var(--accent) 60%, var(--accent-lo));
+  box-shadow: 0 1rem 2.2rem -.6rem rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .4);
+  opacity: 0; transform: translate(-50%, -100%) scale(.6); transform-origin: 50% 100%;
+  transition: opacity .1s, transform .12s var(--spring);
+}
+.key-pop.show { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 
 /* ═════════════════════════ LEADERBOARD ═════════════════════════ */
 #screen-board { gap: 1.1rem; }
@@ -457,12 +475,12 @@ body[data-screen="game"] .foot { display: none; }
 
   /* game: board | info + keyboard */
   #screen-game {
-    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); grid-template-rows: auto minmax(0, 1fr);
+    display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); grid-template-rows: auto minmax(0, 1fr);
     column-gap: 2.4rem; row-gap: .8rem;
   }
   .board-wrap { grid-column: 1; grid-row: 1 / -1; padding: 0; }
   .game-info { grid-column: 2; grid-row: 1; }
-  .keyboard { grid-column: 2; grid-row: 2; align-self: end; --key-h: clamp(2.5rem, 9.6vh, 4.7rem); padding-bottom: .4rem; }
+  .keyboard { grid-column: 2; grid-row: 2; align-self: end; --key-h: clamp(2.8rem, 11.5vh, 5.6rem); margin-inline: 0; padding-bottom: .4rem; }
   .board { --tile: min(
     calc((100cqw - (var(--len) - 1) * var(--gap)) / var(--len)),
     calc((100cqh - (var(--rows) - 1) * var(--gap)) / var(--rows)),

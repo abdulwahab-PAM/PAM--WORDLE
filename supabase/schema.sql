@@ -32,7 +32,7 @@ create table if not exists public.app_settings (
   max_attempts           int     not null default 6    check (max_attempts between 3 and 10),
   time_limit_seconds     int     not null default 0    check (time_limit_seconds between 0 and 3600),  -- timer disabled
   plays_per_day          int     not null default 3    check (plays_per_day between 0 and 100),
-  word_lang_mode         text    not null default 'ui' check (word_lang_mode in ('ui','en','ar')),
+  word_lang_mode         text    not null default 'ar' check (word_lang_mode in ('ui','en','ar')),
   hints_enabled          boolean not null default true,
   hint_penalty           int     not null default 150  check (hint_penalty between 0 and 1000),
   require_known_words    boolean not null default true,   -- only real words (dictionary) are accepted
@@ -648,74 +648,13 @@ grant execute on function public.admin_stats()                          to authe
 grant execute on function public.admin_new_season(text)                 to authenticated;
 
 -- ═════════════════════════════════════════════════════════════════════════
--- 7. STARTER CATEGORIES + WORDS  (IT themed · edit freely from the admin page)
+-- 7. STARTER DATA
 -- ═════════════════════════════════════════════════════════════════════════
-insert into public.categories (name_en, name_ar) values
-  ('Internet & Cloud', 'الإنترنت والسحابة'),
-  ('Networks',         'الشبكات'),
-  ('Programming',      'البرمجة'),
-  ('Cyber Security',   'الأمن السيبراني'),
-  ('Hardware',         'الأجهزة'),
-  ('General Tech',     'تقنية عامة')
-on conflict (name_en) do nothing;
-
-insert into public.words (word, lang, hint_en, hint_ar, category_id)
-select v.word, v.lang, v.hint_en, v.hint_ar, c.id
-from (values
-  ('cloud', 'en', 'Online storage and computing', 'تخزين وحوسبة عبر الإنترنت', 'Internet & Cloud'),
-  ('linux', 'en', 'Open-source operating system', 'نظام تشغيل مفتوح المصدر', 'Programming'),
-  ('cache', 'en', 'Fast temporary storage', 'ذاكرة تخزين مؤقت سريعة', 'Hardware'),
-  ('pixel', 'en', 'Smallest dot on a screen', 'أصغر نقطة في الشاشة', 'Hardware'),
-  ('debug', 'en', 'Find and fix code errors', 'البحث عن أخطاء البرمجة وإصلاحها', 'Programming'),
-  ('login', 'en', 'Sign in to a system', 'الدخول إلى النظام', 'Internet & Cloud'),
-  ('admin', 'en', 'System administrator', 'مدير النظام', 'Cyber Security'),
-  ('email', 'en', 'Electronic mail', 'البريد الإلكتروني', 'Internet & Cloud'),
-  ('token', 'en', 'Digital key for authentication', 'مفتاح رقمي للمصادقة', 'Cyber Security'),
-  ('query', 'en', 'Request sent to a database', 'طلب يُرسل إلى قاعدة البيانات', 'Programming'),
-  ('proxy', 'en', 'A server in the middle', 'خادم وسيط', 'Networks'),
-  ('patch', 'en', 'Small fix for software', 'تحديث صغير لإصلاح البرنامج', 'Programming'),
-  ('array', 'en', 'Ordered list in code', 'قائمة مرتبة في البرمجة', 'Programming'),
-  ('logic', 'en', 'Reasoning behind the code', 'المنطق خلف البرمجة', 'Programming'),
-  ('cyber', 'en', 'Related to computers and networks', 'متعلق بالحواسيب والشبكات', 'Cyber Security'),
-  ('mouse', 'en', 'Pointing device', 'جهاز تأشير', 'Hardware'),
-  ('input', 'en', 'Data entered into a system', 'بيانات تُدخل إلى النظام', 'Hardware'),
-  ('virus', 'en', 'Malicious program', 'برنامج ضار', 'Cyber Security'),
-  ('excel', 'en', 'Famous spreadsheet program', 'برنامج جداول بيانات شهير', 'General Tech'),
-  ('modem', 'en', 'Connects you to the internet', 'جهاز يوصلك بالإنترنت', 'Networks'),
-  ('server', 'en', 'Computer that serves others', 'حاسوب يقدم الخدمات لغيره', 'Networks'),
-  ('python', 'en', 'Popular programming language', 'لغة برمجة شهيرة', 'Programming'),
-  ('router', 'en', 'Directs network traffic', 'يوجّه حركة الشبكة', 'Networks'),
-  ('backup', 'en', 'A safety copy of your data', 'نسخة احتياطية من البيانات', 'Cyber Security'),
-  ('laptop', 'en', 'Portable computer', 'حاسوب محمول', 'Hardware'),
-  ('wifi', 'en', 'Wireless network', 'شبكة لاسلكية', 'Networks'),
-  ('code', 'en', 'What programmers write', 'ما يكتبه المبرمجون', 'Programming'),
-  ('شبكة', 'ar', 'Network', 'مجموعة أجهزة متصلة ببعضها', 'Networks'),
-  ('حاسوب', 'ar', 'Computer', 'جهاز لمعالجة البيانات', 'Hardware'),
-  ('برمجة', 'ar', 'Programming', 'كتابة الأوامر للحاسوب', 'Programming'),
-  ('خادم', 'ar', 'Server', 'حاسوب يقدم الخدمات', 'Networks'),
-  ('بيانات', 'ar', 'Data', 'معلومات مخزنة', 'General Tech'),
-  ('تشفير', 'ar', 'Encryption', 'حماية البيانات بتحويلها إلى رموز', 'Cyber Security'),
-  ('سحابة', 'ar', 'Cloud', 'تخزين عبر الإنترنت', 'Internet & Cloud'),
-  ('نظام', 'ar', 'System', 'مجموعة مكونات تعمل معاً', 'General Tech'),
-  ('ملفات', 'ar', 'Files', 'تُحفظ في المجلدات', 'General Tech'),
-  ('شاشة', 'ar', 'Screen', 'تعرض الصور والنصوص', 'Hardware'),
-  ('برنامج', 'ar', 'Program', 'تطبيق على الحاسوب', 'Programming'),
-  ('أمان', 'ar', 'Security', 'حماية الأنظمة من الاختراق', 'Cyber Security'),
-  ('تقنية', 'ar', 'Technology', 'استخدام العلم في حل المشكلات', 'General Tech'),
-  ('ذكاء', 'ar', 'Intelligence (as in AI)', 'الحرف الأول من AI بالعربي', 'General Tech'),
-  ('منصة', 'ar', 'Platform', 'بيئة رقمية لتقديم الخدمات', 'Internet & Cloud'),
-  ('رابط', 'ar', 'Link', 'تضغط عليه للانتقال لصفحة', 'Internet & Cloud'),
-  ('متصفح', 'ar', 'Browser', 'برنامج لتصفح الإنترنت', 'Internet & Cloud'),
-  ('تطبيق', 'ar', 'Application', 'برنامج على الهاتف', 'Programming'),
-  ('هاتف', 'ar', 'Phone', 'جهاز للاتصال', 'Hardware'),
-  ('بريد', 'ar', 'Mail', 'رسائل إلكترونية', 'Internet & Cloud'),
-  ('طابعة', 'ar', 'Printer', 'تحوّل الملف إلى ورق', 'Hardware'),
-  ('تحديث', 'ar', 'Update', 'نسخة أحدث من البرنامج', 'Programming'),
-  ('موقع', 'ar', 'Website', 'صفحات على الإنترنت', 'Internet & Cloud')
-) as v(word, lang, hint_en, hint_ar, cat)
-left join public.categories c on c.name_en = v.cat
-on conflict (word, lang) do update
-  set category_id = coalesce(public.words.category_id, excluded.category_id);
+-- (none) The game starts empty: add your categories and words from the admin page.
+-- The game is Arabic-only:
+alter table public.app_settings alter column word_lang_mode set default 'ar';
+alter table public.app_settings alter column season_name    set default 'الموسم الأول';
+update public.app_settings set word_lang_mode = 'ar' where id = 1;
 
 -- ═════════════════════════════════════════════════════════════════════════
 -- 8. MAKE ME ADMIN

@@ -1,6 +1,6 @@
 # PAM Word Challenge · تحدي الكلمات
 
-A bilingual (Arabic / English) word-guessing game for the **Public Authority of Manpower — Information Technology Department**, built for a **vertical Android touch screen**, with a separate **admin console** and a **champions board**.
+A bilingual (Arabic / English) word-guessing game for the **Public Authority of Manpower — Information Systems Center**, built for a **vertical Android touch screen**, with a separate **admin console** and a **champions board**.
 
 - Created by the **Information Security Section** (قسم سرية المعلومات)
 - 100% static frontend → host free on **GitHub Pages**

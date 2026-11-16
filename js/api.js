@@ -14,7 +14,7 @@ window.API = (() => {
     max_attempts: 6,
     time_limit_seconds: 0,
     plays_per_day: 3,
-    word_lang_mode: 'ui',
+    word_lang_mode: 'ar',
     hints_enabled: true,
     hint_penalty: 150,
     require_known_words: true,
@@ -573,7 +573,9 @@ window.API = (() => {
   }
 
   /* ── pick backend ────────────────────────────────────────────────────── */
-  const hasSupabase = !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY &&
+  // add ?demo=1 to the address to try the game on local data without touching the real database
+  const forceDemo = /[?&]demo=1\b/.test(location.search);
+  const hasSupabase = !forceDemo && !!(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY &&
     !/YOUR_/.test(cfg.SUPABASE_URL + cfg.SUPABASE_ANON_KEY) && window.supabase);
   const backend = hasSupabase ? createSupabase() : createDemo();
 

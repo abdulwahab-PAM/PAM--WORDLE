@@ -41,7 +41,7 @@
   };
 
   const S = {
-    lang: cfg.DEFAULT_LANG === 'en' ? 'en' : 'ar',
+    lang: 'ar',                       // the game is Arabic-only
     settings: { ...API.DEFAULT_SETTINGS },
     screen: null,
     player: null,
@@ -704,7 +704,6 @@
 
   /* ═══════════════════════ events ═══════════════════════ */
   function bind() {
-    $('#lang-btn').addEventListener('click', () => { Sound.tap(); setLang(S.lang === 'ar' ? 'en' : 'ar'); });
     $('#hero').addEventListener('click', openRegister);
     $('#btn-all-champions').addEventListener('click', openBoard);
     $('#reg-form').addEventListener('submit', onRegister);
@@ -720,17 +719,44 @@
       $('#' + (id === 'in-name' ? 'f-name' : 'f-id')).classList.remove('invalid');
     }));
 
-    // on-screen keyboard: pointerdown for instant response on touch screens
+    // on-screen keyboard — tuned for touch:
+    //  • reacts on touch-down (no delay)
+    //  • a tap that lands in the gap between keys goes to the nearest key
+    //  • a bubble above the finger shows which letter was typed
     const kb = $('#keyboard');
+    const pop = h('div', 'key-pop');
+    document.body.appendChild(pop);
+    let popTimer = null;
+    const keyAt = (x, y) => {
+      let best = null, bd = Infinity;
+      for (const k of kb.querySelectorAll('.key')) {
+        const r = k.getBoundingClientRect();
+        const dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom);
+        const d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; best = k; }
+      }
+      return best;
+    };
+    const showPop = key => {
+      const r = key.getBoundingClientRect();
+      pop.textContent = key.textContent;
+      pop.style.left = (r.left + r.width / 2) + 'px';
+      pop.style.top = (r.top - 6) + 'px';
+      pop.classList.add('show');
+      clearTimeout(popTimer);
+      popTimer = setTimeout(() => pop.classList.remove('show'), 190);
+    };
     kb.addEventListener('pointerdown', e => {
-      const key = e.target.closest('.key');
+      const key = e.target.closest('.key') || keyAt(e.clientX, e.clientY);
       if (!key) return;
       e.preventDefault();
       key.classList.add('down');
-      onKey(key.dataset.key);
+      setTimeout(() => key.classList.remove('down'), 150);
+      const k = key.dataset.key;
+      if (k.length === 1 && !S.busy && !S.over && S.game && S.cur.length < S.game.length) showPop(key);
+      if (navigator.vibrate) { try { navigator.vibrate(8); } catch (err) { /* not supported */ } }
+      onKey(k);
     });
-    const up = () => $$('.key.down').forEach(k => k.classList.remove('down'));
-    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => kb.addEventListener(ev, up));
 
     $('#btn-hint').addEventListener('click', onHint);
     $('#btn-quit').addEventListener('click', onQuit);

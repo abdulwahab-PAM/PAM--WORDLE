@@ -294,3 +294,7 @@ select option { background: #101a17; color: var(--text); }
 .mini-word span { line-height: 1.5; padding-bottom: 2px; }
 
 .login-credit { font-size: .78rem; color: var(--accent-hi); opacity: .9; }
+
+/* Arabic-only: one dictionary card + side column */
+.dict-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+@media (max-width: 1150px) { .dict-grid { grid-template-columns: 1fr; } .dict-side { grid-column: auto; } }

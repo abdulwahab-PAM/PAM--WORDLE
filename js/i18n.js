@@ -6,7 +6,7 @@ window.I18N = (() => {
     ar: {
       /* ── shared ── */
       org_name: 'الهيئة العامة للقوى العاملة',
-      dept_name: 'إدارة تكنولوجيا المعلومات',
+      dept_name: 'مركز نظم المعلومات',
       lang_switch: 'English',
       demo_badge: 'وضع تجريبي',
       pts: 'نقطة',
@@ -14,7 +14,7 @@ window.I18N = (() => {
       seconds: 'ثانية',
 
       /* ── home ── */
-      hero_badge: 'تحدي إدارة تكنولوجيا المعلومات',
+      hero_badge: 'تحدي مركز نظم المعلومات',
       tagline: 'اكتشف الكلمة الخفية خلال {n} محاولات فقط',
       tap_to_start: 'المس للبدء',
       legend_correct: 'مكان صحيح',
@@ -96,7 +96,7 @@ window.I18N = (() => {
       err_player_not_found: 'اللاعب غير موجود',
       err_hints_disabled: 'التلميحات غير مفعّلة',
       err_generic: 'حدث خطأ غير متوقع',
-      footer: '© {y} الهيئة العامة للقوى العاملة · إدارة تكنولوجيا المعلومات',
+      footer: '© {y} الهيئة العامة للقوى العاملة · مركز نظم المعلومات',
       credit: 'إعداد وتنفيذ: قسم سرية المعلومات',
 
       /* ═════════ ADMIN ═════════ */
@@ -113,13 +113,13 @@ window.I18N = (() => {
       a_category: 'الفئة',
       a_no_category: 'بدون فئة',
       a_all_categories: 'كل الفئات',
-      a_cat_name_ar: 'الاسم بالعربي',
+      a_cat_name_ar: 'اسم الفئة',
       a_cat_name_en: 'الاسم بالإنجليزي',
       a_add_category: 'إضافة فئة',
       a_edit_category: 'تعديل الفئة',
       a_col_words: 'الكلمات',
       a_confirm_delete_cat: 'حذف الفئة «{c}»؟ ستبقى كلماتها لكن بدون فئة.',
-      a_err_cat_names: 'أدخل الاسم بالعربي والإنجليزي',
+      a_err_cat_names: 'أدخل اسم الفئة',
       a_err_cat_dup: 'توجد فئة بهذا الاسم',
       a_cat_preview: 'هكذا تظهر للاعب أعلى المربعات',
       a_dict_en: 'القاموس الإنجليزي',
@@ -148,7 +148,7 @@ window.I18N = (() => {
       a_dict_ar_tip: 'للعربية: ارفع ملف كلمات عربية (كلمة في كل سطر). تتم إزالة التشكيل وتوحيد الهمزات تلقائياً.',
 
       a_title: 'لوحة التحكم',
-      a_login_sub: 'خاص بمسؤولي إدارة تكنولوجيا المعلومات',
+      a_login_sub: 'خاص بمسؤولي مركز نظم المعلومات',
       a_email: 'البريد الإلكتروني',
       a_password: 'كلمة المرور',
       a_sign_in: 'تسجيل الدخول',
@@ -193,8 +193,8 @@ window.I18N = (() => {
       a_inactive: 'متوقفة',
       a_add_words: 'إضافة كلمات',
       a_bulk_label: 'الكلمات',
-      a_bulk_ph: 'cloud | Online storage | تخزين سحابي\nشبكة\nserver',
-      a_add_help: 'كلمة واحدة في كل سطر (3 إلى 8 أحرف). يمكنك إضافة تلميحات بالشكل: الكلمة | تلميح إنجليزي | تلميح عربي. اختر الفئة لكل الكلمات المضافة.',
+      a_bulk_ph: 'شبكة | مجموعة أجهزة متصلة ببعضها\nخادم\nبيانات',
+      a_add_help: 'كلمة واحدة في كل سطر (3 إلى 8 أحرف). يمكنك إضافة تلميح بالشكل: الكلمة | التلميح. اختر الفئة لكل الكلمات المضافة.',
       a_lang: 'اللغة',
       a_lang_auto: 'تحديد تلقائي',
       a_en: 'الإنجليزية',
@@ -205,7 +205,7 @@ window.I18N = (() => {
       a_prev_bad: '{n} غير صالحة',
       a_prev_empty: 'اكتب أو الصق الكلمات لمعاينتها هنا',
       a_reason_len: 'الطول يجب أن يكون 3–8',
-      a_reason_chars: 'أحرف غير صالحة للغة',
+      a_reason_chars: 'أحرف عربية فقط',
       a_added: 'تمت إضافة {n} كلمة، وتجاهل {s}',
       a_col_word: 'الكلمة',
       a_col_lang: 'اللغة',
@@ -216,7 +216,7 @@ window.I18N = (() => {
       a_edit_word: 'تعديل الكلمة',
       a_word: 'الكلمة',
       a_hint_en: 'التلميح (إنجليزي)',
-      a_hint_ar: 'التلميح (عربي)',
+      a_hint_ar: 'التلميح',
       a_save: 'حفظ',
       a_cancel: 'إلغاء',
       a_delete: 'حذف',
@@ -226,7 +226,7 @@ window.I18N = (() => {
       a_words_count: '{n} من {t} كلمة',
       a_no_rows: 'لا توجد بيانات',
       a_err_duplicate: 'هذه الكلمة موجودة مسبقاً',
-      a_err_invalid_word: 'الكلمة غير صالحة لهذه اللغة (3–8 أحرف)',
+      a_err_invalid_word: 'الكلمة يجب أن تكون عربية من 3 إلى 8 أحرف',
 
       a_col_date: 'التاريخ',
       a_col_player: 'اللاعب',
@@ -268,7 +268,7 @@ window.I18N = (() => {
       a_unsaved: 'لديك تغييرات غير محفوظة',
       a_err_id_range: 'أقل عدد أرقام يجب ألا يتجاوز أكثر عدد',
 
-      s_event_title_ar: 'اسم اللعبة (عربي)',
+      s_event_title_ar: 'اسم اللعبة',
       s_event_title_en: 'اسم اللعبة (إنجليزي)',
       s_season_name: 'اسم الموسم الحالي',
       s_max_attempts: 'عدد المحاولات',
@@ -297,14 +297,14 @@ window.I18N = (() => {
 
     en: {
       org_name: 'Public Authority of Manpower',
-      dept_name: 'Information Technology Department',
+      dept_name: 'Information Systems Center',
       lang_switch: 'العربية',
       demo_badge: 'Demo mode',
       pts: 'pts',
       minutes: 'minutes',
       seconds: 'seconds',
 
-      hero_badge: 'IT Department Challenge',
+      hero_badge: 'Information Systems Center Challenge',
       tagline: 'Find the hidden word in just {n} tries',
       tap_to_start: 'Tap to start',
       legend_correct: 'Right spot',
@@ -381,7 +381,7 @@ window.I18N = (() => {
       err_player_not_found: 'Player not found',
       err_hints_disabled: 'Hints are disabled',
       err_generic: 'Something went wrong',
-      footer: '© {y} Public Authority of Manpower · Information Technology Department',
+      footer: '© {y} Public Authority of Manpower · Information Systems Center',
       credit: 'Created by the Information Security Section',
 
       category: 'Category',
@@ -432,7 +432,7 @@ window.I18N = (() => {
       a_dict_ar_tip: 'For Arabic: upload a file of Arabic words (one per line). Diacritics are removed and Alef forms unified automatically.',
 
       a_title: 'Admin Console',
-      a_login_sub: 'For IT Department administrators only',
+      a_login_sub: 'For Information Systems Center administrators only',
       a_email: 'Email',
       a_password: 'Password',
       a_sign_in: 'Sign in',

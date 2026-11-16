@@ -123,11 +123,6 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input id="w-search" type="search" data-i18n-ph="a_search">
         </label>
-        <div class="seg" id="w-lang">
-          <button type="button" data-v="all" class="active" data-i18n="a_all"></button>
-          <button type="button" data-v="en">EN</button>
-          <button type="button" data-v="ar">ع</button>
-        </div>
         <select class="sel" id="w-cat"></select>
         <div class="seg" id="w-status">
           <button type="button" data-v="all" class="active" data-i18n="a_all"></button>
@@ -150,13 +145,6 @@
             <p class="help" data-i18n="a_add_help"></p>
           </div>
           <div class="add-side">
-            <label class="field"><span data-i18n="a_lang"></span>
-              <select id="w-bulk-lang">
-                <option value="auto" data-i18n="a_lang_auto"></option>
-                <option value="en" data-i18n="a_en"></option>
-                <option value="ar" data-i18n="a_ar"></option>
-              </select>
-            </label>
             <label class="field"><span data-i18n="a_category"></span><select id="w-bulk-cat"></select></label>
             <div class="preview-sum" id="w-sum"></div>
             <div class="preview" id="w-preview"></div>
@@ -183,7 +171,6 @@
         <form class="card cat-form" id="cat-form" novalidate>
           <h3 data-i18n="a_add_category"></h3>
           <label class="field"><span data-i18n="a_cat_name_ar"></span><input id="cat-ar" type="text" maxlength="40" dir="rtl"></label>
-          <label class="field"><span data-i18n="a_cat_name_en"></span><input id="cat-en" type="text" maxlength="40" dir="ltr"></label>
           <div class="cat-preview">
             <small data-i18n="a_cat_preview"></small>
             <div class="cat-chip"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span><span><small data-i18n="category"></small><strong id="cat-preview-name">—</strong></span></div>
@@ -201,23 +188,6 @@
     <section class="page" data-page="dictionary" hidden>
       <div class="form-alert info" id="dict-off" hidden data-i18n="a_dict_off_warn"></div>
       <div class="dict-grid">
-        <div class="card dict-card" data-lang="en">
-          <div class="dict-head"><span class="badge en">EN</span><h3 data-i18n="a_dict_en"></h3></div>
-          <div class="dict-count"><b data-count>0</b><span data-i18n="a_dict_words"></span></div>
-          <p class="dict-warn" data-warn hidden data-i18n="a_dict_empty_warn"></p>
-          <button class="btn btn-primary btn-block" type="button" id="dict-import-en">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
-            <span data-i18n="a_dict_import_en"></span>
-          </button>
-          <p class="help center" data-i18n="a_dict_import_en_sub"></p>
-          <label class="btn btn-ghost btn-block file-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></svg>
-            <span data-i18n="a_dict_upload"></span>
-            <input type="file" accept=".txt,.csv,text/plain" data-upload hidden>
-          </label>
-          <div class="progress" data-progress hidden><div class="progress-bar"><i></i></div><small></small></div>
-          <button class="btn btn-danger btn-sm" type="button" data-clear><span data-i18n="a_dict_clear"></span></button>
-        </div>
         <div class="card dict-card" data-lang="ar">
           <div class="dict-head"><span class="badge ar">عربي</span><h3 data-i18n="a_dict_ar"></h3></div>
           <div class="dict-count"><b data-count>0</b><span data-i18n="a_dict_words"></span></div>
@@ -321,14 +291,8 @@
 <dialog class="dlg" id="dlg-word">
   <form id="word-form" method="dialog" novalidate>
     <h3 data-i18n="a_edit_word"></h3>
-    <div class="dlg-grid">
-      <label class="field"><span data-i18n="a_word"></span><input id="e-word" type="text" maxlength="12" required></label>
-      <label class="field"><span data-i18n="a_lang"></span>
-        <select id="e-lang"><option value="en" data-i18n="a_en"></option><option value="ar" data-i18n="a_ar"></option></select>
-      </label>
-    </div>
+    <label class="field"><span data-i18n="a_word"></span><input id="e-word" type="text" maxlength="12" dir="rtl" required></label>
     <label class="field"><span data-i18n="a_category"></span><select id="e-cat"></select></label>
-    <label class="field"><span data-i18n="a_hint_en"></span><input id="e-hint-en" type="text" maxlength="140" dir="ltr"></label>
     <label class="field"><span data-i18n="a_hint_ar"></span><input id="e-hint-ar" type="text" maxlength="140" dir="rtl"></label>
     <label class="switch-row"><span data-i18n="a_active"></span><span class="switch"><input type="checkbox" id="e-active"><span></span></span></label>
     <div class="form-alert" id="e-alert" hidden></div>
@@ -343,7 +307,6 @@
   <form id="cat-edit-form" method="dialog" novalidate>
     <h3 data-i18n="a_edit_category"></h3>
     <label class="field"><span data-i18n="a_cat_name_ar"></span><input id="ce-ar" type="text" maxlength="40" dir="rtl"></label>
-    <label class="field"><span data-i18n="a_cat_name_en"></span><input id="ce-en" type="text" maxlength="40" dir="ltr"></label>
     <div class="form-alert" id="ce-alert" hidden></div>
     <div class="dlg-actions">
       <button class="btn btn-ghost" type="button" id="ce-cancel" data-i18n="a_cancel"></button>

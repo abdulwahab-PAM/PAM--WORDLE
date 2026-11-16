@@ -26,13 +26,11 @@
   const FIELDS = [
     { g: 'a_g_branding', items: [
       { k: 'event_title_ar', type: 'text', dir: 'rtl' },
-      { k: 'event_title_en', type: 'text', dir: 'ltr' },
       { k: 'season_name', type: 'text' }
     ] },
     { g: 'a_g_gameplay', items: [
       { k: 'max_attempts', type: 'number', min: 3, max: 10 },
       { k: 'plays_per_day', type: 'number', min: 0, max: 100 },
-      { k: 'word_lang_mode', type: 'select', options: ['ui', 'en', 'ar'] },
       { k: 'require_known_words', type: 'bool' }
     ] },
     { g: 'a_g_hints', items: [
@@ -255,7 +253,7 @@
       [ICON.play, nf(st.games_today), t('a_kpi_today'), ''],
       [ICON.target, rate + '%', t('a_kpi_rate'), `${nf(st.wins_season)} / ${nf(st.games_season)}`],
       [ICON.star, nf(st.avg_score), t('a_kpi_avg'), t('a_kpi_avg_sub', { n: st.avg_attempts || 0 })],
-      [ICON.words, nf((st.words_en || 0) + (st.words_ar || 0)), t('a_kpi_words'), `EN ${nf(st.words_en)} · عربي ${nf(st.words_ar)}`]
+      [ICON.words, nf(st.words_ar || 0), t('a_kpi_words'), '']
     ];
     $('#kpis').innerHTML = kpis.map(([ic, v, l, s]) =>
       `<div class="card kpi"><div class="ico">${ic}</div><b>${esc(v)}</b><span>${esc(l)}</span>${s ? `<small>${esc(s)}</small>` : ''}</div>`).join('');
@@ -298,7 +296,7 @@
 
   /* ── category helpers ── */
   const catById = id => A.categories.find(c => c.id === id);
-  const catName = c => (c ? (A.lang === 'ar' ? c.name_ar : c.name_en) : '');
+  const catName = c => (c ? (c.name_ar || c.name_en) : '');
   function catOptions(selected, mode) {
     const head = mode === 'filter'
       ? `<option value="all">${esc(t('a_all_categories'))}</option><option value="none">${esc(t('a_no_category'))}</option>`
@@ -326,21 +324,20 @@
   function renderWords() {
     const rows = filteredWords();
     const head = `<thead><tr>
-      <th>${esc(t('a_col_word'))}</th><th>${esc(t('a_col_lang'))}</th><th>${esc(t('a_col_category'))}</th><th>${esc(t('a_col_len'))}</th>
+      <th>${esc(t('a_col_word'))}</th><th>${esc(t('a_col_category'))}</th><th>${esc(t('a_col_len'))}</th>
       <th>${esc(t('a_col_hint'))}</th><th>${esc(t('a_col_played'))}</th><th>${esc(t('a_col_active'))}</th><th></th></tr></thead>`;
     const body = rows.length ? rows.map(w => `<tr class="${w.active ? '' : 'inactive'}" data-id="${w.id}">
       <td>${miniWord(w.word, w.lang)}</td>
-      <td>${langBadge(w.lang)}</td>
       <td>${catById(w.category_id) ? `<span class="cat-pill">${esc(catName(catById(w.category_id)))}</span>` : `<span class="muted-pill">—</span>`}</td>
       <td class="num">${U.chars(w.word).length}</td>
-      <td class="hint-cell"><div dir="ltr">${esc(w.hint_en || '—')}</div><div dir="rtl">${esc(w.hint_ar || '')}</div></td>
+      <td class="hint-cell"><div>${esc(w.hint_ar || w.hint_en || '—')}</div></td>
       <td class="num">${nf(w.plays)}</td>
       <td><label class="switch"><input type="checkbox" data-act="toggle" ${w.active ? 'checked' : ''}><span></span></label></td>
       <td class="acts">
         <button class="icon-act" type="button" data-act="edit" title="${esc(t('a_edit_word'))}">${ICON.edit}</button>
         <button class="icon-act del" type="button" data-act="delete" title="${esc(t('a_delete'))}">${ICON.del}</button>
       </td></tr>`).join('')
-      : `<tr class="empty-row"><td colspan="8">${esc(t('a_no_rows'))}</td></tr>`;
+      : `<tr class="empty-row"><td colspan="7">${esc(t('a_no_rows'))}</td></tr>`;
     $('#w-table').innerHTML = head + '<tbody>' + body + '</tbody>';
     $('#w-count').textContent = t('a_words_count', { n: nf(rows.length), t: nf(A.words.length) });
   }
@@ -372,13 +369,10 @@
   function openEdit(w) {
     A.editing = w;
     $('#e-word').value = w.word;
-    $('#e-lang').value = w.lang;
-    $('#e-hint-en').value = w.hint_en || '';
     $('#e-hint-ar').value = w.hint_ar || '';
     $('#e-active').checked = !!w.active;
     $('#e-cat').innerHTML = catOptions(w.category_id || '', 'pick');
     $('#e-alert').hidden = true;
-    $('#e-word').dir = w.lang === 'ar' ? 'rtl' : 'ltr';
     $('#dlg-word').showModal();
   }
 
@@ -386,12 +380,12 @@
     e.preventDefault();
     const w = A.editing; if (!w) return;
     const word = U.normalize($('#e-word').value);
-    const lang = $('#e-lang').value;
+    const lang = 'ar';
     const alert = $('#e-alert');
     if (!U.isWord(word, lang)) { alert.textContent = t('a_err_invalid_word'); alert.hidden = false; return; }
     const patch = {
       word, lang,
-      hint_en: $('#e-hint-en').value.trim() || null,
+      hint_en: null,
       hint_ar: $('#e-hint-ar').value.trim() || null,
       category_id: $('#e-cat').value ? Number($('#e-cat').value) : null,
       active: $('#e-active').checked
@@ -411,13 +405,12 @@
 
   /* ── bulk add ── */
   function parseBulk() {
-    const sel = $('#w-bulk-lang').value;
     const existing = new Set(A.words.map(w => w.lang + ':' + w.word));
     const seen = new Set();
     return $('#w-bulk').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(line => {
       let [raw, h1 = '', h2 = ''] = line.split('|').map(s => s.trim());
       const word = U.normalize(raw);
-      const lang = sel === 'auto' ? U.detectLang(word) : sel;
+      const lang = 'ar';
       // be forgiving: an Arabic hint written in the English slot moves to the Arabic slot
       if (h1 && !h2 && U.detectLang(h1) === 'ar') { h2 = h1; h1 = ''; }
       let status = 'ok', reason = '';
@@ -425,7 +418,7 @@
       if (!U.isWord(word, lang)) { status = 'bad'; reason = len < 3 || len > 8 ? t('a_reason_len') : t('a_reason_chars'); }
       else if (existing.has(lang + ':' + word) || seen.has(lang + ':' + word)) status = 'dup';
       seen.add(lang + ':' + word);
-      return { raw, word, lang, hint_en: h1 || null, hint_ar: h2 || null, status, reason };
+      return { raw, word, lang, hint_en: null, hint_ar: h2 || h1 || null, status, reason };
     });
   }
 
@@ -480,36 +473,36 @@
   function renderCategories() {
     const rows = A.categories;
     $('#cat-table').innerHTML = `<thead><tr>
-      <th>${esc(t('a_cat_name_ar'))}</th><th>${esc(t('a_cat_name_en'))}</th><th>${esc(t('a_col_words'))}</th><th></th></tr></thead><tbody>` +
+      <th>${esc(t('a_cat_name_ar'))}</th><th>${esc(t('a_col_words'))}</th><th></th></tr></thead><tbody>` +
       (rows.length ? rows.map(c => `<tr data-id="${c.id}">
-        <td dir="rtl"><strong>${esc(c.name_ar)}</strong></td>
-        <td dir="ltr">${esc(c.name_en)}</td>
+        <td><strong>${esc(catName(c))}</strong></td>
         <td class="num">${nf(c.words)}</td>
         <td class="acts">
           <button class="icon-act" type="button" data-act="edit" title="${esc(t('a_edit_category'))}">${ICON.edit}</button>
           <button class="icon-act del" type="button" data-act="delete" title="${esc(t('a_delete'))}">${ICON.del}</button>
         </td></tr>`).join('')
-        : `<tr class="empty-row"><td colspan="4">${esc(t('a_no_rows'))}</td></tr>`) + '</tbody>';
+        : `<tr class="empty-row"><td colspan="3">${esc(t('a_no_rows'))}</td></tr>`) + '</tbody>';
     updateCatPreview();
   }
 
   function updateCatPreview() {
-    const v = (A.lang === 'ar' ? $('#cat-ar').value : $('#cat-en').value).trim()
-      || ($('#cat-ar').value || $('#cat-en').value).trim();
-    $('#cat-preview-name').textContent = v || '—';
+    $('#cat-preview-name').textContent = $('#cat-ar').value.trim() || '—';
   }
+
+  // the database keeps two name columns; the game is Arabic-only so both hold the same text
+  const catPayload = name => ({ name_ar: name, name_en: name });
 
   async function onAddCategory(e) {
     e.preventDefault();
-    const name_ar = $('#cat-ar').value.trim(), name_en = $('#cat-en').value.trim();
+    const name = $('#cat-ar').value.trim().replace(/\s+/g, ' ');
     const alert = $('#cat-alert');
     alert.hidden = true;
-    if (!name_ar || !name_en) { alert.textContent = t('a_err_cat_names'); alert.hidden = false; return; }
+    if (!name) { alert.textContent = t('a_err_cat_names'); alert.hidden = false; return; }
     const btn = $('#cat-add');
     btn.classList.add('loading');
     try {
-      await API.admin.addCategory({ name_ar, name_en });
-      $('#cat-ar').value = ''; $('#cat-en').value = '';
+      await API.admin.addCategory(catPayload(name));
+      $('#cat-ar').value = '';
       toast(t('a_saved'), 'success');
       await loadCategories();
     } catch (err) {
@@ -525,7 +518,7 @@
     if (!c) return;
     if (btn.dataset.act === 'edit') {
       A.editingCat = c;
-      $('#ce-ar').value = c.name_ar; $('#ce-en').value = c.name_en;
+      $('#ce-ar').value = catName(c);
       $('#ce-alert').hidden = true;
       $('#dlg-cat').showModal();
     } else if (btn.dataset.act === 'delete') {
@@ -538,13 +531,13 @@
   async function onEditCategory(e) {
     e.preventDefault();
     const c = A.editingCat; if (!c) return;
-    const name_ar = $('#ce-ar').value.trim(), name_en = $('#ce-en').value.trim();
+    const name = $('#ce-ar').value.trim().replace(/\s+/g, ' ');
     const alert = $('#ce-alert');
-    if (!name_ar || !name_en) { alert.textContent = t('a_err_cat_names'); alert.hidden = false; return; }
+    if (!name) { alert.textContent = t('a_err_cat_names'); alert.hidden = false; return; }
     const btn = $('#ce-save');
     btn.classList.add('loading');
     try {
-      await API.admin.updateCategory(c.id, { name_ar, name_en });
+      await API.admin.updateCategory(c.id, catPayload(name));
       $('#dlg-cat').close();
       toast(t('a_saved'), 'success');
       await loadCategories();
@@ -655,7 +648,7 @@
     const word = U.normalize(raw);
     const out = $('#dict-check-out');
     if (!word) { out.textContent = ''; return; }
-    const lang = U.detectLang(word);
+    const lang = 'ar';
     if (!U.isWord(word, lang)) { out.className = 'check-out no'; out.textContent = t('a_err_invalid_word'); return; }
     try {
       const r = await API.admin.checkWord(word, lang);
@@ -863,31 +856,26 @@
 
     // words
     $('#w-search').addEventListener('input', e => { A.wf.q = e.target.value; renderWords(); });
-    $('#w-lang').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; A.wf.lang = b.dataset.v; setSeg('w-lang', b.dataset.v); renderWords(); });
     $('#w-status').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; A.wf.status = b.dataset.v; setSeg('w-status', b.dataset.v); renderWords(); });
     $('#w-table').addEventListener('click', onWordsTable);
     $('#w-table').addEventListener('change', onWordsTable);
     $('#w-add-toggle').addEventListener('click', () => toggleAdd());
     $('#w-add-cancel').addEventListener('click', () => toggleAdd(false));
     $('#w-bulk').addEventListener('input', renderPreview);
-    $('#w-bulk-lang').addEventListener('change', renderPreview);
     $('#w-add-save').addEventListener('click', saveBulk);
     $('#word-form').addEventListener('submit', onEditSave);
     $('#e-cancel').addEventListener('click', () => $('#dlg-word').close());
-    $('#e-lang').addEventListener('change', e => { $('#e-word').dir = e.target.value === 'ar' ? 'rtl' : 'ltr'; });
 
     $('#w-cat').addEventListener('change', e => { A.wf.cat = e.target.value; renderWords(); });
 
     // categories
     $('#cat-form').addEventListener('submit', onAddCategory);
     $('#cat-ar').addEventListener('input', updateCatPreview);
-    $('#cat-en').addEventListener('input', updateCatPreview);
     $('#cat-table').addEventListener('click', onCatTable);
     $('#cat-edit-form').addEventListener('submit', onEditCategory);
     $('#ce-cancel').addEventListener('click', () => $('#dlg-cat').close());
 
     // dictionary
-    $('#dict-import-en').addEventListener('click', importEnglish);
     $$('.dict-card').forEach(card => {
       const lang = card.dataset.lang;
       card.querySelector('[data-upload]').addEventListener('change', e => {
