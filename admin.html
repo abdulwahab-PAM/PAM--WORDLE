@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1513">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · PAM Word Challenge</title>
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="bg" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="pattern"></div>
+</div>
+
+<!-- ═════════ LOGIN ═════════ -->
+<section class="login" id="login" hidden>
+  <form class="glass login-card" id="login-form" novalidate>
+    <div class="logo-badge login-logo"><img id="login-logo" src="assets/logo.png" alt=""></div>
+    <div class="flag-ribbon" aria-hidden="true"></div>
+    <div>
+      <p class="eyebrow" data-i18n="org_name"></p>
+      <h1 data-i18n="a_title"></h1>
+      <p class="muted" data-i18n="a_login_sub"></p>
+    </div>
+    <label class="field"><span data-i18n="a_email"></span><input type="email" id="l-email" autocomplete="username" dir="ltr" required></label>
+    <label class="field"><span data-i18n="a_password"></span><input type="password" id="l-pass" autocomplete="current-password" dir="ltr" required></label>
+    <div class="form-alert" id="l-alert" hidden></div>
+    <button class="btn btn-primary btn-block" id="l-submit" type="submit" data-i18n="a_sign_in"></button>
+    <p class="demo-note" id="l-demo" data-i18n="a_demo_login" hidden></p>
+    <button type="button" class="btn btn-ghost btn-sm lang-toggle" data-lang-toggle></button>
+    <p class="login-credit" data-i18n="credit"></p>
+  </form>
+</section>
+
+<!-- ═════════ SHELL ═════════ -->
+<div class="shell" id="shell" hidden>
+  <aside class="side">
+    <div class="side-brand">
+      <div class="logo-badge side-logo"><img id="side-logo" src="assets/logo.png" alt=""></div>
+      <div><strong data-i18n="org_name"></strong><span data-i18n="a_title"></span></div>
+    </div>
+    <nav class="nav" id="nav">
+      <button type="button" data-nav="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span data-i18n="a_nav_dashboard"></span>
+      </button>
+      <button type="button" data-nav="words">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="6" height="10" rx="1.5"/><rect x="9" y="7" width="6" height="10" rx="1.5"/><rect x="16" y="7" width="6" height="10" rx="1.5"/></svg>
+        <span data-i18n="a_nav_words"></span>
+      </button>
+      <button type="button" data-nav="categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <span data-i18n="a_nav_categories"></span>
+      </button>
+      <button type="button" data-nav="dictionary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5M9 8h7M9 12h5"/></svg>
+        <span data-i18n="a_nav_dictionary"></span>
+      </button>
+      <button type="button" data-nav="results">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+        <span data-i18n="a_nav_results"></span>
+      </button>
+      <button type="button" data-nav="champions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+        <span data-i18n="a_nav_champions"></span>
+      </button>
+      <button type="button" data-nav="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span data-i18n="a_nav_settings"></span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      <a class="btn btn-ghost btn-sm" href="index.html" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+        <span data-i18n="a_open_game"></span>
+      </a>
+      <button type="button" class="btn btn-ghost btn-sm" data-lang-toggle></button>
+      <div class="me"><span id="me-email" dir="ltr"></span><button type="button" id="btn-logout" data-i18n="a_sign_out"></button></div>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="demo-banner" id="demo-banner" data-i18n="a_demo_banner" hidden></div>
+    <header class="page-head">
+      <h1 id="page-title"></h1>
+      <p class="muted" id="page-sub"></p>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="page" data-page="dashboard" hidden>
+      <div class="kpis" id="kpis"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-h">
+            <h3 data-i18n="a_activity"></h3>
+            <div class="legend-mini"><i class="lg games"></i><span data-i18n="a_games"></span><i class="lg wins"></i><span data-i18n="a_wins"></span></div>
+          </div>
+          <div class="chart" id="chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3 data-i18n="a_top"></h3><button class="link" type="button" data-goto="champions" data-i18n="a_view"></button></div>
+          <ol class="mini-board" id="dash-top"></ol>
+        </div>
+      </div>
+      <div class="card no-pad">
+        <div class="card-h padded"><h3 data-i18n="a_recent"></h3><button class="link" type="button" data-goto="results" data-i18n="a_view"></button></div>
+        <div class="table-wrap short"><table class="tbl" id="dash-recent"></table></div>
+      </div>
+    </section>
+
+    <!-- WORDS -->
+    <section class="page" data-page="words" hidden>
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="w-search" type="search" data-i18n-ph="a_search">
+        </label>
+        <div class="seg" id="w-lang">
+          <button type="button" data-v="all" class="active" data-i18n="a_all"></button>
+          <button type="button" data-v="en">EN</button>
+          <button type="button" data-v="ar">ع</button>
+        </div>
+        <select class="sel" id="w-cat"></select>
+        <div class="seg" id="w-status">
+          <button type="button" data-v="all" class="active" data-i18n="a_all"></button>
+          <button type="button" data-v="active" data-i18n="a_active"></button>
+          <button type="button" data-v="inactive" data-i18n="a_inactive"></button>
+        </div>
+        <span class="spacer"></span>
+        <button class="btn btn-primary" id="w-add-toggle" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <span data-i18n="a_add_words"></span>
+        </button>
+      </div>
+
+      <div class="card add-card" id="w-add" hidden>
+        <div class="add-grid">
+          <div>
+            <label class="field"><span data-i18n="a_bulk_label"></span>
+              <textarea id="w-bulk" rows="8" spellcheck="false" data-i18n-ph="a_bulk_ph"></textarea>
+            </label>
+            <p class="help" data-i18n="a_add_help"></p>
+          </div>
+          <div class="add-side">
+            <label class="field"><span data-i18n="a_lang"></span>
+              <select id="w-bulk-lang">
+                <option value="auto" data-i18n="a_lang_auto"></option>
+                <option value="en" data-i18n="a_en"></option>
+                <option value="ar" data-i18n="a_ar"></option>
+              </select>
+            </label>
+            <label class="field"><span data-i18n="a_category"></span><select id="w-bulk-cat"></select></label>
+            <div class="preview-sum" id="w-sum"></div>
+            <div class="preview" id="w-preview"></div>
+            <div class="add-actions">
+              <button class="btn btn-ghost" id="w-add-cancel" type="button" data-i18n="a_cancel"></button>
+              <button class="btn btn-primary" id="w-add-save" type="button" disabled></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card no-pad">
+        <div class="table-wrap"><table class="tbl" id="w-table"></table></div>
+        <div class="tbl-foot" id="w-count"></div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="page" data-page="categories" hidden>
+      <div class="grid-main-side">
+        <div class="card no-pad">
+          <div class="table-wrap"><table class="tbl" id="cat-table"></table></div>
+        </div>
+        <form class="card cat-form" id="cat-form" novalidate>
+          <h3 data-i18n="a_add_category"></h3>
+          <label class="field"><span data-i18n="a_cat_name_ar"></span><input id="cat-ar" type="text" maxlength="40" dir="rtl"></label>
+          <label class="field"><span data-i18n="a_cat_name_en"></span><input id="cat-en" type="text" maxlength="40" dir="ltr"></label>
+          <div class="cat-preview">
+            <small data-i18n="a_cat_preview"></small>
+            <div class="cat-chip"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span><span><small data-i18n="category"></small><strong id="cat-preview-name">—</strong></span></div>
+          </div>
+          <div class="form-alert" id="cat-alert" hidden></div>
+          <button class="btn btn-primary btn-block" id="cat-add" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span data-i18n="a_add_category"></span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- DICTIONARY -->
+    <section class="page" data-page="dictionary" hidden>
+      <div class="form-alert info" id="dict-off" hidden data-i18n="a_dict_off_warn"></div>
+      <div class="dict-grid">
+        <div class="card dict-card" data-lang="en">
+          <div class="dict-head"><span class="badge en">EN</span><h3 data-i18n="a_dict_en"></h3></div>
+          <div class="dict-count"><b data-count>0</b><span data-i18n="a_dict_words"></span></div>
+          <p class="dict-warn" data-warn hidden data-i18n="a_dict_empty_warn"></p>
+          <button class="btn btn-primary btn-block" type="button" id="dict-import-en">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+            <span data-i18n="a_dict_import_en"></span>
+          </button>
+          <p class="help center" data-i18n="a_dict_import_en_sub"></p>
+          <label class="btn btn-ghost btn-block file-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></svg>
+            <span data-i18n="a_dict_upload"></span>
+            <input type="file" accept=".txt,.csv,text/plain" data-upload hidden>
+          </label>
+          <div class="progress" data-progress hidden><div class="progress-bar"><i></i></div><small></small></div>
+          <button class="btn btn-danger btn-sm" type="button" data-clear><span data-i18n="a_dict_clear"></span></button>
+        </div>
+        <div class="card dict-card" data-lang="ar">
+          <div class="dict-head"><span class="badge ar">عربي</span><h3 data-i18n="a_dict_ar"></h3></div>
+          <div class="dict-count"><b data-count>0</b><span data-i18n="a_dict_words"></span></div>
+          <p class="dict-warn" data-warn hidden data-i18n="a_dict_empty_warn"></p>
+          <p class="help" data-i18n="a_dict_ar_tip"></p>
+          <label class="btn btn-primary btn-block file-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></svg>
+            <span data-i18n="a_dict_upload"></span>
+            <input type="file" accept=".txt,.csv,text/plain" data-upload hidden>
+          </label>
+          <div class="progress" data-progress hidden><div class="progress-bar"><i></i></div><small></small></div>
+          <button class="btn btn-danger btn-sm" type="button" data-clear><span data-i18n="a_dict_clear"></span></button>
+        </div>
+        <div class="dict-side">
+          <div class="card">
+            <h3 class="card-title" data-i18n="a_dict_check"></h3>
+            <form class="check-row" id="dict-check-form">
+              <input class="input" id="dict-check-in" type="text" maxlength="12" data-i18n-ph="a_dict_check_ph" autocomplete="off">
+              <button class="btn btn-ghost" type="submit" data-i18n="a_dict_check"></button>
+            </form>
+            <p class="check-out" id="dict-check-out"></p>
+          </div>
+          <div class="card">
+            <h3 class="card-title" data-i18n="a_dict_how"></h3>
+            <p class="help" data-i18n="a_dict_how_text"></p>
+            <p class="help" data-i18n="a_dict_upload_help"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="page" data-page="results" hidden>
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="r-search" type="search" data-i18n-ph="a_search">
+        </label>
+        <div class="seg" id="r-range">
+          <button type="button" data-v="today" data-i18n="a_range_today"></button>
+          <button type="button" data-v="season" class="active" data-i18n="a_range_season"></button>
+          <button type="button" data-v="all" data-i18n="a_range_all"></button>
+        </div>
+        <div class="seg" id="r-status">
+          <button type="button" data-v="all" class="active" data-i18n="a_all"></button>
+          <button type="button" data-v="won" data-i18n="st_won"></button>
+          <button type="button" data-v="lost" data-i18n="st_lost"></button>
+          <button type="button" data-v="abandoned" data-i18n="st_abandoned"></button>
+        </div>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" id="r-export" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          <span data-i18n="a_export"></span>
+        </button>
+      </div>
+      <div class="card no-pad">
+        <div class="table-wrap"><table class="tbl" id="r-table"></table></div>
+        <div class="tbl-foot" id="r-count"></div>
+      </div>
+    </section>
+
+    <!-- CHAMPIONS -->
+    <section class="page" data-page="champions" hidden>
+      <div class="toolbar">
+        <div class="seg" id="c-period">
+          <button type="button" data-v="today" data-i18n="tab_today"></button>
+          <button type="button" data-v="week" data-i18n="tab_week"></button>
+          <button type="button" data-v="season" class="active" data-i18n="tab_season"></button>
+          <button type="button" data-v="all" data-i18n="tab_all"></button>
+        </div>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" id="c-export" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          <span data-i18n="a_export"></span>
+        </button>
+      </div>
+      <div class="grid-main-side">
+        <div class="card no-pad"><div class="table-wrap"><table class="tbl" id="c-table"></table></div></div>
+        <div class="card season-card">
+          <h3 data-i18n="a_season_card"></h3>
+          <p class="season-info" id="c-season-info"></p>
+          <p class="help" data-i18n="a_new_season_help"></p>
+          <label class="field"><span data-i18n="a_season_name"></span><input id="c-season-name" type="text" maxlength="40"></label>
+          <button class="btn btn-danger btn-block" id="c-new-season" type="button" data-i18n="a_new_season"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page" data-page="settings" hidden>
+      <form class="settings-grid" id="s-form" novalidate></form>
+      <div class="save-bar" id="s-bar">
+        <span data-i18n="a_unsaved"></span>
+        <button class="btn btn-primary" id="s-save" type="button" data-i18n="a_save_settings"></button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ═════════ DIALOGS ═════════ -->
+<dialog class="dlg" id="dlg-word">
+  <form id="word-form" method="dialog" novalidate>
+    <h3 data-i18n="a_edit_word"></h3>
+    <div class="dlg-grid">
+      <label class="field"><span data-i18n="a_word"></span><input id="e-word" type="text" maxlength="12" required></label>
+      <label class="field"><span data-i18n="a_lang"></span>
+        <select id="e-lang"><option value="en" data-i18n="a_en"></option><option value="ar" data-i18n="a_ar"></option></select>
+      </label>
+    </div>
+    <label class="field"><span data-i18n="a_category"></span><select id="e-cat"></select></label>
+    <label class="field"><span data-i18n="a_hint_en"></span><input id="e-hint-en" type="text" maxlength="140" dir="ltr"></label>
+    <label class="field"><span data-i18n="a_hint_ar"></span><input id="e-hint-ar" type="text" maxlength="140" dir="rtl"></label>
+    <label class="switch-row"><span data-i18n="a_active"></span><span class="switch"><input type="checkbox" id="e-active"><span></span></span></label>
+    <div class="form-alert" id="e-alert" hidden></div>
+    <div class="dlg-actions">
+      <button class="btn btn-ghost" type="button" id="e-cancel" data-i18n="a_cancel"></button>
+      <button class="btn btn-primary" type="submit" id="e-save" data-i18n="a_save"></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dlg" id="dlg-cat">
+  <form id="cat-edit-form" method="dialog" novalidate>
+    <h3 data-i18n="a_edit_category"></h3>
+    <label class="field"><span data-i18n="a_cat_name_ar"></span><input id="ce-ar" type="text" maxlength="40" dir="rtl"></label>
+    <label class="field"><span data-i18n="a_cat_name_en"></span><input id="ce-en" type="text" maxlength="40" dir="ltr"></label>
+    <div class="form-alert" id="ce-alert" hidden></div>
+    <div class="dlg-actions">
+      <button class="btn btn-ghost" type="button" id="ce-cancel" data-i18n="a_cancel"></button>
+      <button class="btn btn-primary" type="submit" id="ce-save" data-i18n="a_save"></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dlg" id="dlg-confirm">
+  <h3 id="dc-title"></h3>
+  <p class="muted" id="dc-text"></p>
+  <div class="dlg-actions">
+    <button class="btn btn-ghost" type="button" id="dc-cancel" data-i18n="a_cancel"></button>
+    <button class="btn btn-danger" type="button" id="dc-ok"></button>
+  </div>
+</dialog>
+
+<div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

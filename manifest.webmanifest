@@ -1,0 +1,13 @@
+{
+  "name": "PAM Word Challenge",
+  "short_name": "Word Challenge",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#060908",
+  "theme_color": "#0d1513",
+  "icons": [
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
