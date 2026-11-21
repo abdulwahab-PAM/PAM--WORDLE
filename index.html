@@ -141,6 +141,17 @@
           <span class="cat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>
           <span class="cat-txt"><small data-i18n="category"></small><strong id="g-category-name"></strong></span>
         </div>
+        <figure class="clue loading" id="g-image" role="button" tabindex="0" hidden>
+          <img class="clue-bg" id="g-image-bg" alt="" aria-hidden="true">
+          <img class="clue-img" id="g-image-img" alt="">
+          <span class="clue-zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          </span>
+          <figcaption class="clue-cap" id="g-image-cap">
+            <span class="cat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></span>
+            <span class="cat-txt"><small data-i18n="category"></small><strong id="g-image-cat"></strong></span>
+          </figcaption>
+        </figure>
         <div class="attempts" id="g-attempts"></div>
         <div class="hint-banner" id="hint-banner" hidden></div>
       </div>
@@ -198,6 +209,17 @@
     </div>
     <div class="autoclose"><div class="track"><div class="bar" id="r-bar"></div></div><span id="r-count"></span></div>
   </div>
+</div>
+
+<!-- ═════════ IMAGE LIGHTBOX ═════════ -->
+<div class="overlay lightbox" id="lightbox" hidden>
+  <figure class="lb-sheet sheet">
+    <img id="lb-img" alt="">
+    <figcaption class="lb-cap" id="lb-cap"></figcaption>
+  </figure>
+  <button class="lb-close" type="button" data-i18n-title="image_close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
 </div>
 
 <!-- ═════════ CONFIRM ═════════ -->

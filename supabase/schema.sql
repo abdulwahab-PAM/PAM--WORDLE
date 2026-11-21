@@ -95,6 +95,8 @@ create index if not exists words_lang_active_idx on public.words (lang, active);
 alter table public.words
   add column if not exists category_id bigint references public.categories(id) on delete set null;
 create index if not exists words_category_idx on public.words (category_id);
+-- optional helper picture shown above the letter boxes (public URL in Supabase Storage)
+alter table public.words add column if not exists image_url text;
 
 -- 1.6 Dictionary — every real word players are allowed to GUESS ────────────
 --     (answers come from public.words; those are always accepted as guesses)
@@ -372,6 +374,7 @@ begin
     'lang',         v_lang,
     'category_en',  c.name_en,
     'category_ar',  c.name_ar,
+    'image_url',    w.image_url,
     'max_attempts', g.max_attempts,
     'time_limit',   g.time_limit,
     'has_hint',     s.hints_enabled and coalesce(w.hint_en, w.hint_ar) is not null,
@@ -380,7 +383,7 @@ end $$;
 
 -- 4.4 Leaderboard (champions) ───────────────────────────────────────────────
 --   p_period: 'today' | 'week' | 'season' | 'all'
---   ID numbers are masked (••••1234) for everyone except admins.
+--   ID numbers are returned to admins only — players never receive them.
 create or replace function public.get_leaderboard(
   p_period text default 'season', p_limit int default 10, p_player_id uuid default null)
 returns table (rank bigint, full_name text, id_display text, total_score bigint,
@@ -413,7 +416,7 @@ language sql stable security definer set search_path = public as $$
   )
   select r.rnk,
          r.full_name,
-         case when public.is_admin() then r.id_number else '••••' || right(r.id_number, 4) end,
+         case when public.is_admin() then r.id_number end,
          r.total_score, r.wins, r.games, r.best_time_ms,
          (p_player_id is not null and r.id = p_player_id)
     from ranked r
@@ -622,6 +625,36 @@ begin
    where id = 1;
   return public.get_public_settings();
 end $$;
+
+-- ═════════════════════════════════════════════════════════════════════════
+-- 5b. WORD IMAGES (Supabase Storage)
+--     Public bucket so the game can display images by URL.
+--     File names are random, so a URL never reveals the word.
+--     Only admins can upload / replace / delete; nobody can list the bucket.
+-- ═════════════════════════════════════════════════════════════════════════
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('word-images', 'word-images', true, 3145728, array['image/webp','image/jpeg','image/png'])
+on conflict (id) do update
+  set public = true,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "word_images_admin_select" on storage.objects;
+create policy "word_images_admin_select" on storage.objects
+  for select to authenticated using (bucket_id = 'word-images' and public.is_admin());
+
+drop policy if exists "word_images_admin_insert" on storage.objects;
+create policy "word_images_admin_insert" on storage.objects
+  for insert to authenticated with check (bucket_id = 'word-images' and public.is_admin());
+
+drop policy if exists "word_images_admin_update" on storage.objects;
+create policy "word_images_admin_update" on storage.objects
+  for update to authenticated using (bucket_id = 'word-images' and public.is_admin())
+  with check (bucket_id = 'word-images' and public.is_admin());
+
+drop policy if exists "word_images_admin_delete" on storage.objects;
+create policy "word_images_admin_delete" on storage.objects
+  for delete to authenticated using (bucket_id = 'word-images' and public.is_admin());
 
 -- ═════════════════════════════════════════════════════════════════════════
 -- 6. PRIVILEGES

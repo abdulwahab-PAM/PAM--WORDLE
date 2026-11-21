@@ -13,6 +13,7 @@
   const nf = n => Number(n || 0).toLocaleString('en-US');
 
   const ICON = {
+    image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
     del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>',
     users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>',
@@ -63,6 +64,7 @@
     period: 'season',
     parsed: [],
     editing: null, editingCat: null, importing: false,
+    img: { blob: null, remove: false }, imgPreviewUrl: null,
     dirty: false
   };
 
@@ -118,6 +120,7 @@
     if (c === 'DUPLICATE') return t('a_err_duplicate');
     if (c === 'INVALID_WORD_EN' || c === 'INVALID_WORD_AR') return t('a_err_invalid_word');
     if (c === 'STORAGE_FULL') return t('a_err_storage_full');
+    if (c === 'IMAGE_UPLOAD') return t('a_err_image_upload');
     return t('a_err_generic');
   }
   function handleErr(e) {
@@ -324,10 +327,13 @@
   function renderWords() {
     const rows = filteredWords();
     const head = `<thead><tr>
-      <th>${esc(t('a_col_word'))}</th><th>${esc(t('a_col_category'))}</th><th>${esc(t('a_col_len'))}</th>
+      <th>${esc(t('a_col_word'))}</th><th>${esc(t('a_col_image'))}</th><th>${esc(t('a_col_category'))}</th><th>${esc(t('a_col_len'))}</th>
       <th>${esc(t('a_col_hint'))}</th><th>${esc(t('a_col_played'))}</th><th>${esc(t('a_col_active'))}</th><th></th></tr></thead>`;
     const body = rows.length ? rows.map(w => `<tr class="${w.active ? '' : 'inactive'}" data-id="${w.id}">
       <td>${miniWord(w.word, w.lang)}</td>
+      <td>${w.image_url
+        ? `<img class="thumb" src="${esc(w.image_url)}" alt="" loading="lazy" data-act="edit" title="${esc(t('a_image_change'))}">`
+        : `<button class="thumb-empty" type="button" data-act="edit" title="${esc(t('a_image_upload'))}">${ICON.image}</button>`}</td>
       <td>${catById(w.category_id) ? `<span class="cat-pill">${esc(catName(catById(w.category_id)))}</span>` : `<span class="muted-pill">—</span>`}</td>
       <td class="num">${U.chars(w.word).length}</td>
       <td class="hint-cell"><div>${esc(w.hint_ar || w.hint_en || '—')}</div></td>
@@ -337,7 +343,7 @@
         <button class="icon-act" type="button" data-act="edit" title="${esc(t('a_edit_word'))}">${ICON.edit}</button>
         <button class="icon-act del" type="button" data-act="delete" title="${esc(t('a_delete'))}">${ICON.del}</button>
       </td></tr>`).join('')
-      : `<tr class="empty-row"><td colspan="7">${esc(t('a_no_rows'))}</td></tr>`;
+      : `<tr class="empty-row"><td colspan="8">${esc(t('a_no_rows'))}</td></tr>`;
     $('#w-table').innerHTML = head + '<tbody>' + body + '</tbody>';
     $('#w-count').textContent = t('a_words_count', { n: nf(rows.length), t: nf(A.words.length) });
   }
@@ -361,18 +367,79 @@
     } else if (act.dataset.act === 'delete' && e.type === 'click') {
       const disp = w.lang === 'en' ? w.word.toUpperCase() : w.word;
       if (!(await confirmBox(t('a_delete'), t('a_confirm_delete_word', { w: disp })))) return;
-      try { await API.admin.deleteWord(id); A.words = A.words.filter(x => x.id !== id); renderWords(); toast(t('a_deleted'), 'success'); }
+      try {
+        await API.admin.deleteWord(id);
+        if (w.image_url) API.admin.deleteWordImage(w.image_url).catch(() => {});
+        A.words = A.words.filter(x => x.id !== id); renderWords(); toast(t('a_deleted'), 'success');
+      }
       catch (err) { handleErr(err); }
     }
   }
 
+  /* ── word image helpers ── */
+  function setImgPreview(src) {
+    const box = $('#e-img-box'), img = $('#e-img');
+    if (src) { img.src = src; box.classList.add('has'); }
+    else { img.removeAttribute('src'); box.classList.remove('has'); }
+    $('#e-img-remove').hidden = !src;
+    $('#e-img-label').textContent = t(src ? 'a_image_change' : 'a_image_upload');
+  }
+
+  // resize in the browser before upload: max 1000px, WebP (JPEG fallback) — small and fast for the kiosk
+  async function compressImage(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      const MAX = 1000;
+      const k = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w, h);
+      const toBlob = (type, q) => new Promise(r => c.toBlob(r, type, q));
+      let blob = await toBlob('image/webp', 0.85);
+      if (!blob || blob.type !== 'image/webp') {
+        ctx.globalCompositeOperation = 'destination-over';      // JPEG has no transparency: put it on white
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+        blob = await toBlob('image/jpeg', 0.86);
+      }
+      return blob;
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  async function onImagePick(e) {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const alert = $('#e-alert');
+    alert.hidden = true;
+    if (!/^image\//.test(f.type)) { alert.textContent = t('a_err_image_type'); alert.hidden = false; return; }
+    if (f.size > 15 * 1024 * 1024) { alert.textContent = t('a_err_image_big'); alert.hidden = false; return; }
+    try {
+      const blob = await compressImage(f);
+      A.img = { blob, remove: false };
+      if (A.imgPreviewUrl) URL.revokeObjectURL(A.imgPreviewUrl);
+      A.imgPreviewUrl = URL.createObjectURL(blob);
+      setImgPreview(A.imgPreviewUrl);
+    } catch (err) { alert.textContent = t('a_err_image_type'); alert.hidden = false; }
+  }
+
+  function onImageRemove() {
+    A.img = { blob: null, remove: true };
+    setImgPreview(null);
+  }
+
   function openEdit(w) {
     A.editing = w;
+    A.img = { blob: null, remove: false };
     $('#e-word').value = w.word;
     $('#e-hint-ar').value = w.hint_ar || '';
     $('#e-active').checked = !!w.active;
     $('#e-cat').innerHTML = catOptions(w.category_id || '', 'pick');
     $('#e-alert').hidden = true;
+    setImgPreview(w.image_url || null);
     $('#dlg-word').showModal();
   }
 
@@ -390,15 +457,21 @@
       category_id: $('#e-cat').value ? Number($('#e-cat').value) : null,
       active: $('#e-active').checked
     };
+    const oldUrl = w.image_url || null;
+    let uploaded = null;
     const btn = $('#e-save');
     btn.classList.add('loading');
     try {
+      if (A.img.blob) { uploaded = await API.admin.uploadWordImage(A.img.blob); patch.image_url = uploaded; }
+      else if (A.img.remove && oldUrl) patch.image_url = null;
       await API.admin.updateWord(w.id, patch);
       Object.assign(w, patch);
+      if (oldUrl && 'image_url' in patch && patch.image_url !== oldUrl) API.admin.deleteWordImage(oldUrl).catch(() => {});
       $('#dlg-word').close();
       renderWords();
       toast(t('a_saved'), 'success');
     } catch (err) {
+      if (uploaded) API.admin.deleteWordImage(uploaded).catch(() => {});   // don't leave orphan files
       alert.textContent = errText(err); alert.hidden = false;
     } finally { btn.classList.remove('loading'); }
   }
@@ -865,6 +938,8 @@
     $('#w-add-save').addEventListener('click', saveBulk);
     $('#word-form').addEventListener('submit', onEditSave);
     $('#e-cancel').addEventListener('click', () => $('#dlg-word').close());
+    $('#e-img-file').addEventListener('change', onImagePick);
+    $('#e-img-remove').addEventListener('click', onImageRemove);
 
     $('#w-cat').addEventListener('change', e => { A.wf.cat = e.target.value; renderWords(); });
 

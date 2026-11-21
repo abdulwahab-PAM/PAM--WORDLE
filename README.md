@@ -81,6 +81,7 @@ The champions board ranks players by total points this **season**. Ties are brok
 - **Overview**: live KPIs, a 14-day activity chart, top players and the latest games.
 - **Categories**: Arabic + English names. The player sees the word's category above the letter boxes.
 - **Dictionary**: one-click English import, upload Arabic/English word files, check any word.
+- **Word images**: open a word with ✎ and upload a picture; players see it above the letter boxes (tap to enlarge). Run `supabase/update-v4-images.sql` once to enable it.
 - **Words**: pick a category, then bulk-paste words (one per line, `word | English hint | Arabic hint`), with live validation. Language is detected automatically. You can activate, deactivate, edit or delete words.
 - **Results**: every game with player, word, guesses, score and time. Filter, search and **export to CSV** (opens correctly in Excel with Arabic).
 - **Champions**: rank by today, the last 7 days, the season or all time. Full ID numbers are shown to admins only. Export to CSV, or start a new season.

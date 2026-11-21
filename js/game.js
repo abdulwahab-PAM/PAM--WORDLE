@@ -131,7 +131,7 @@
     $('#footer').textContent = t('footer', { y: new Date().getFullYear() });
 
     // rules
-    const rules = [t('rule_1', { n: st.max_attempts }), t('rule_cat'), t('rule_2'), t('rule_3'), t('rule_real')];
+    const rules = [t('rule_1', { n: st.max_attempts }), t('rule_cat'), t('rule_img'), t('rule_2'), t('rule_3'), t('rule_real')];
     $('#rules').replaceChildren(...rules.map(r => h('li', '', r)));
 
     // examples
@@ -177,6 +177,7 @@
     clearInterval(S.autoclose);
     closeConfirm();
     closeOverlay($('#result'));
+    closeOverlay($('#lightbox'));
     S.player = null;
     S.game = null;
     show('home');
@@ -249,7 +250,7 @@
     li.innerHTML =
       `<span class="rank">${r.rank}</span>` +
       `<span class="avatar">${esc(initials(r.full_name))}</span>` +
-      `<span class="who"><strong>${esc(r.full_name)}</strong><small dir="ltr">${esc(r.id_display)}</small></span>` +
+      `<span class="who"><strong>${esc(r.full_name)}</strong></span>` +
       (S.screen === 'board' ? `<span class="wins"><b>${nf(r.wins)}</b>${esc(t('a_col_wins'))}</span>` : '') +
       `<span class="pts"><b>${nf(r.total_score)}</b><small>${esc(t('pts'))}</small></span>`;
     return li;
@@ -372,12 +373,39 @@
     renderAttempts();
   }
 
+  // category + optional helper image above the letter boxes
   function renderCategory() {
-    const g = S.game, chip = $('#g-category');
+    const g = S.game;
     if (!g) return;
-    const name = S.lang === 'ar' ? (g.category_ar || g.category_en) : (g.category_en || g.category_ar);
-    chip.hidden = !name;
-    $('#g-category-name').textContent = name || '';
+    const name = g.category_ar || g.category_en || '';
+    const chip = $('#g-category'), fig = $('#g-image');
+    $('#g-category-name').textContent = name;
+    $('#g-image-cat').textContent = name;
+    $('#g-image-cap').hidden = !name;
+    $('#screen-game').classList.toggle('has-image', !!g.image_url);
+    if (!g.image_url) { fig.hidden = true; chip.hidden = !name; return; }
+
+    const img = $('#g-image-img'), bg = $('#g-image-bg');
+    if (img.dataset.src !== g.image_url) {
+      fig.classList.add('loading');
+      img.onload = () => fig.classList.remove('loading');
+      img.onerror = () => { fig.hidden = true; chip.hidden = !name; $('#screen-game').classList.remove('has-image'); };   // broken image: fall back to the chip
+      img.dataset.src = g.image_url;
+      img.src = g.image_url;
+      bg.src = g.image_url;
+    }
+    fig.hidden = false;
+    chip.hidden = true;                    // the category is shown as the image caption instead
+  }
+
+  function openLightbox() {
+    if (!S.game || !S.game.image_url) return;
+    Sound.tap();
+    $('#lb-img').src = S.game.image_url;
+    const name = S.game.category_ar || S.game.category_en || '';
+    $('#lb-cap').textContent = name;
+    $('#lb-cap').hidden = !name;
+    openOverlay($('#lightbox'));
   }
 
   function renderAttempts() {
@@ -665,7 +693,7 @@
       const d = h('div', `pod pod-${r.rank}`);
       d.innerHTML =
         `<div class="pod-avatar">${r.rank === 1 ? `<span class="pod-crown">${SVG.crown}</span>` : ''}${esc(initials(r.full_name))}<span class="pod-medal">${r.rank}</span></div>` +
-        `<strong>${esc(r.full_name)}</strong><small dir="ltr">${esc(r.id_display)}</small>` +
+        `<strong>${esc(r.full_name)}</strong>` +
         `<div class="pod-score">${nf(r.total_score)} <span>${esc(t('pts'))}</span></div>` +
         `<div class="pod-base"></div>`;
       return d;
@@ -754,11 +782,15 @@
       setTimeout(() => key.classList.remove('down'), 150);
       const k = key.dataset.key;
       if (k.length === 1 && !S.busy && !S.over && S.game && S.cur.length < S.game.length) showPop(key);
-      if (navigator.vibrate) { try { navigator.vibrate(8); } catch (err) { /* not supported */ } }
+      const touched = !navigator.userActivation || navigator.userActivation.hasBeenActive;
+      if (navigator.vibrate && touched) { try { navigator.vibrate(8); } catch (err) { /* not supported */ } }
       onKey(k);
     });
 
     $('#btn-hint').addEventListener('click', onHint);
+    $('#g-image').addEventListener('click', openLightbox);
+    $('#g-image').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(); } });
+    $('#lightbox').addEventListener('click', () => { Sound.tap(); closeOverlay($('#lightbox')); });
     $('#btn-quit').addEventListener('click', onQuit);
     $('#r-again').addEventListener('click', playAgain);
     $('#r-finish').addEventListener('click', () => { Sound.tap(); goHome(); });

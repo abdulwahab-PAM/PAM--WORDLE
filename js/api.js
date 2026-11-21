@@ -139,7 +139,7 @@ window.API = (() => {
         stats: () => rpc('admin_stats'),
         async listWords() {
           const rows = await q(sb.from('words')
-            .select('id, word, lang, hint_en, hint_ar, category_id, active, created_at, games(count)')
+            .select('id, word, lang, hint_en, hint_ar, category_id, image_url, active, created_at, games(count)')
             .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(5000));
           return rows.map(r => ({ ...r, plays: (r.games && r.games[0] && r.games[0].count) || 0 }));
         },
@@ -151,6 +151,23 @@ window.API = (() => {
         },
         updateWord: (id, patch) => q(sb.from('words').update(patch).eq('id', id).select().single()),
         deleteWord: id => q(sb.from('words').delete().eq('id', id)),
+
+        /* word images (Supabase Storage, bucket "word-images") */
+        async uploadWordImage(blob) {
+          const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/png' ? 'png' : 'jpg';
+          const rnd = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+          const path = `${rnd}.${ext}`;                 // random name: never reveals the word
+          let r;
+          try { r = await sb.storage.from('word-images').upload(path, blob, { contentType: blob.type, cacheControl: '31536000', upsert: false }); }
+          catch (e) { throw makeErr('NETWORK', e); }
+          if (r.error) throw makeErr('IMAGE_UPLOAD', r.error);
+          return sb.storage.from('word-images').getPublicUrl(path).data.publicUrl;
+        },
+        async deleteWordImage(url) {
+          const m = String(url || '').match(/\/word-images\/([^?#]+)/);
+          if (!m) return;
+          try { await sb.storage.from('word-images').remove([decodeURIComponent(m[1])]); } catch (e) { /* best effort */ }
+        },
         getSettings: () => q(sb.from('app_settings').select('*').eq('id', 1).single()),
         saveSettings: patch => q(sb.from('app_settings')
           .update({ ...patch, updated_at: new Date().toISOString() }).eq('id', 1).select().single()),
@@ -334,7 +351,7 @@ window.API = (() => {
       const cap = Math.min(Math.max(limit || 10, 1), 500);
       return rows.map((a, i) => ({
         rank: i + 1, full_name: a.full_name,
-        id_display: admin ? a.id_number : util.mask(a.id_number),
+        id_display: admin ? a.id_number : null,         // players never see ID numbers
         total_score: a.total_score, wins: a.wins, games: a.games, best_time_ms: a.best_time_ms,
         is_me: !!pid && a.id === pid
       })).filter(r => r.rank <= cap || r.is_me);
@@ -382,6 +399,7 @@ window.API = (() => {
         return wait({
           game_id: g.id, length: Array.from(w.word).length, lang: L, max_attempts: g.max_attempts,
           category_en: cat.name_en || null, category_ar: cat.name_ar || null,
+          image_url: w.image_url || null,
           time_limit: g.time_limit, has_hint: s.hints_enabled && !!(w.hint_en || w.hint_ar),
           plays_left: s.plays_per_day > 0 ? Math.max(0, s.plays_per_day - pt - 1) : null
         });
@@ -515,6 +533,15 @@ window.API = (() => {
           db.games.forEach(g => { if (g.word_id === id) g.word_id = null; });
           save(); return wait(true);
         },
+        async uploadWordImage(blob) {
+          return new Promise((res, rej) => {
+            const fr = new FileReader();
+            fr.onload = () => res(fr.result);
+            fr.onerror = () => rej(makeErr('IMAGE_UPLOAD'));
+            fr.readAsDataURL(blob);
+          });
+        },
+        async deleteWordImage() { return true; },
         async getSettings() { return wait({ ...S() }); },
         async saveSettings(patch) { Object.assign(db.settings, patch, { updated_at: nowIso() }); save(); return wait({ ...S() }); },
         async listGames(limit = 1000) {

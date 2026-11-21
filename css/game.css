@@ -510,3 +510,79 @@ body[data-screen="game"] .foot { display: none; }
   .brand .logo-badge { width: 3rem; height: 3rem; }
   .logo-ring, .legend { display: none; }
 }
+
+/* ═════════════════════════ HELPER IMAGE ═════════════════════════ */
+.clue {
+  position: relative; flex: none; align-self: center; cursor: zoom-in;
+  width: min(100%, 34rem); height: clamp(5.4rem, 11.5vh, 13rem);
+  border-radius: 1.5rem; overflow: hidden; isolation: isolate;
+  background: #0b1412;
+  border: 1px solid rgba(127, 220, 152, .45);
+  box-shadow: 0 1.2rem 2.8rem -1.3rem rgba(0, 0, 0, .9), 0 0 0 .35rem rgba(47, 154, 82, .12);
+  animation: drop .5s var(--spring);
+  transition: transform .15s var(--ease);
+}
+.clue:active { transform: scale(.98); }
+.clue-bg {                                  /* blurred copy fills the frame for any image shape */
+  position: absolute; inset: -12%; width: 124%; height: 124%; object-fit: cover; z-index: -1;
+  filter: blur(20px) brightness(.5) saturate(1.25);
+  transition: opacity .4s;
+}
+.clue-img { display: block; width: 100%; height: 100%; object-fit: contain; padding: .45rem; transition: opacity .4s, transform .6s var(--ease); }
+.clue.loading .clue-img, .clue.loading .clue-bg { opacity: 0; }
+.clue.loading .clue-img { transform: scale(.96); }
+.clue.loading::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .09) 50%, transparent 70%);
+  background-size: 260% 100%; animation: shimmer 1.3s linear infinite;
+}
+.clue-zoom {
+  position: absolute; top: .6rem; inset-inline-start: .6rem; width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  background: rgba(0, 0, 0, .45); border: 1px solid rgba(255, 255, 255, .28);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.clue-zoom svg { width: 1.2rem; height: 1.2rem; }
+.clue-cap {
+  position: absolute; inset-inline: 0; bottom: 0; display: flex; align-items: center; gap: .65rem;
+  padding: 2rem 1rem .6rem;
+  background: linear-gradient(0deg, rgba(3, 8, 6, .92) 10%, rgba(3, 8, 6, .55) 55%, transparent);
+}
+.clue-cap .cat-ico { width: 2.3rem; height: 2.3rem; }
+.clue-cap .cat-ico svg { width: 1.2rem; height: 1.2rem; }
+.clue-cap small { font-size: .72rem; color: var(--accent-hi); font-weight: 600; line-height: 1.4; }
+.clue-cap strong { font-size: 1.3rem; font-weight: 700; line-height: 1.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 6px rgba(0, 0, 0, .7); }
+
+/* lightbox */
+.lightbox { cursor: zoom-out; padding: 1.5rem; }
+.lb-sheet { display: flex; flex-direction: column; align-items: center; gap: 1rem; max-width: 100%; }
+.lb-sheet img {
+  display: block; max-width: min(92vw, 72rem); max-height: 76vh; object-fit: contain;
+  border-radius: 1.6rem; background: #0b1412;
+  box-shadow: var(--shadow), 0 0 0 1px rgba(127, 220, 152, .35);
+}
+.lb-cap {
+  padding: .4rem 1.4rem; border-radius: 999px; font-size: 1.3rem; font-weight: 700; line-height: 1.8;
+  background: rgba(47, 154, 82, .22); border: 1px solid rgba(127, 220, 152, .5);
+}
+.lb-close {
+  position: fixed; top: 1.2rem; inset-inline-end: 1.2rem; width: 3.6rem; height: 3.6rem; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; background: rgba(255, 255, 255, .1); border: 1px solid var(--line-2);
+}
+.lb-close svg { width: 1.6rem; height: 1.6rem; }
+
+@media (orientation: portrait) and (max-height: 720px) { .clue { height: clamp(5rem, 10.5vh, 8rem); } }
+
+/* when a picture is shown, give the board back some height (portrait only) */
+@media (orientation: portrait), (max-width: 699px) {
+  #screen-game.has-image { gap: .55rem; }
+  #screen-game.has-image .game-info { gap: .55rem; }
+  #screen-game.has-image .keyboard { --key-h: clamp(3rem, 6.5vh, 5.9rem); gap: clamp(5px, .45rem, 13px); }
+  #screen-game.has-image .clue-cap { padding-top: 1.4rem; padding-bottom: .45rem; }
+}
+@media (orientation: landscape) and (min-width: 700px) {
+  .clue { width: 100%; height: clamp(4.6rem, 15vh, 9.5rem); }
+  #screen-game.has-image .game-info { gap: .5rem; }
+  #screen-game.has-image .keyboard { --key-h: clamp(2.5rem, 9.2vh, 4.9rem); gap: clamp(4px, .42rem, 12px); }
+}
+@media (orientation: landscape) and (max-height: 520px) { .clue { height: 4.6rem; } .clue-cap { padding-top: .6rem; } }
