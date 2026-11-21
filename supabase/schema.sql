@@ -87,7 +87,7 @@ create table if not exists public.words (
   lang        text    not null check (lang in ('en','ar')),
   hint_en     text,
   hint_ar     text,
-  active      boolean not null default true,
+  active      boolean not null default false,   -- new words start OFF until an admin activates them
   created_at  timestamptz not null default now(),
   unique (word, lang)
 );
@@ -97,6 +97,7 @@ alter table public.words
 create index if not exists words_category_idx on public.words (category_id);
 -- optional helper picture shown above the letter boxes (public URL in Supabase Storage)
 alter table public.words add column if not exists image_url text;
+alter table public.words alter column active set default false;   -- new words start OFF
 
 -- 1.6 Dictionary — every real word players are allowed to GUESS ────────────
 --     (answers come from public.words; those are always accepted as guesses)

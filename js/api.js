@@ -511,7 +511,7 @@ window.API = (() => {
             const word = util.normalize(r.word);
             if (!util.isWord(word, r.lang)) return;
             if (db.words.some(w => w.word === word && w.lang === r.lang)) return;
-            db.words.push({ id: db.seq++, word, lang: r.lang, hint_en: r.hint_en || null, hint_ar: r.hint_ar || null, category_id: r.category_id || null, active: true, created_at: nowIso() });
+            db.words.push({ id: db.seq++, word, lang: r.lang, hint_en: r.hint_en || null, hint_ar: r.hint_ar || null, category_id: r.category_id || null, active: r.active === true, created_at: nowIso() });
             inserted++;
           });
           save();

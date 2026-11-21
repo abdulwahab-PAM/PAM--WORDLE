@@ -522,7 +522,7 @@
 
   async function saveBulk() {
     const category_id = $('#w-bulk-cat').value ? Number($('#w-bulk-cat').value) : null;
-    const rows = A.parsed.filter(x => x.status === 'ok').map(({ word, lang, hint_en, hint_ar }) => ({ word, lang, hint_en, hint_ar, category_id }));
+    const rows = A.parsed.filter(x => x.status === 'ok').map(({ word, lang, hint_en, hint_ar }) => ({ word, lang, hint_en, hint_ar, category_id, active: false }));   // new words start OFF
     if (!rows.length) return;
     const btn = $('#w-add-save');
     btn.classList.add('loading');

@@ -5,6 +5,8 @@
 -- ╚════════════════════════════════════════════════════════════════════╝
 
 alter table public.words add column if not exists image_url text;
+-- new words start OFF until an admin switches them on (existing words are not changed)
+alter table public.words alter column active set default false;
 
 -- ═════════════════════════════════════════════════════════════════════════
 -- 5b. WORD IMAGES (Supabase Storage)
