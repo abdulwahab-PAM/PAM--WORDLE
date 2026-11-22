@@ -121,6 +121,7 @@
     if (c === 'INVALID_WORD_EN' || c === 'INVALID_WORD_AR') return t('a_err_invalid_word');
     if (c === 'STORAGE_FULL') return t('a_err_storage_full');
     if (c === 'IMAGE_UPLOAD') return t('a_err_image_upload');
+    if (c === 'NEEDS_UPDATE') return t('a_err_needs_update');
     return t('a_err_generic');
   }
   function handleErr(e) {
@@ -804,6 +805,59 @@
       ]));
   }
 
+  /* ── delete one day's games & scores ── */
+  const dayStr = daysAgo => dayOf(new Date(Date.now() - daysAgo * 864e5).toISOString());
+  const dayLabel = d => fmtDate(d + 'T12:00:00Z', false);
+  let dayReq = 0;
+
+  async function previewDay() {
+    const d = $('#day-date').value, box = $('#day-preview'), btn = $('#day-delete'), alert = $('#day-alert');
+    alert.hidden = true;
+    btn.disabled = true;
+    btn.textContent = t('a_delete');
+    A.dayInfo = null;
+    $$('#dlg-day [data-day]').forEach(b => b.classList.toggle('active', dayStr(Number(b.dataset.day)) === d));
+    if (!d) { box.className = 'day-preview'; box.textContent = ''; return; }
+    const my = ++dayReq;
+    box.className = 'day-preview';
+    box.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px"></div>';
+    try {
+      const r = await API.admin.deleteDay(d, true);              // dry run: count only
+      if (my !== dayReq) return;
+      A.dayInfo = { day: d, games: r.games };
+      box.className = 'day-preview ' + (r.games ? 'has' : 'none');
+      box.textContent = r.games ? t('a_day_preview', { g: nf(r.games), p: nf(r.players) }) : t('a_day_empty');
+      btn.disabled = !r.games;
+      if (r.games) btn.textContent = t('a_delete_n', { n: nf(r.games) });
+    } catch (err) {
+      if (my !== dayReq) return;
+      box.className = 'day-preview'; box.textContent = '';
+      alert.textContent = errText(err); alert.hidden = false;
+    }
+  }
+
+  function openDeleteDay() {
+    const today = dayStr(0);
+    $('#day-date').value = today;
+    $('#day-date').max = today;
+    $('#dlg-day').showModal();
+    previewDay();
+  }
+
+  async function onDeleteDay(e) {
+    e.preventDefault();
+    const info = A.dayInfo;
+    if (!info || !info.games) return;
+    $('#dlg-day').close();
+    const d = dayLabel(info.day);
+    if (!(await confirmBox(t('a_delete_day_title'), t('a_day_confirm', { g: nf(info.games), d }), t('a_delete')))) return;
+    try {
+      const r = await API.admin.deleteDay(info.day, false);
+      toast(t('a_day_deleted', { g: nf(r.games), d }), 'success', 3500);
+      await loadResults();
+    } catch (err) { handleErr(err); }
+  }
+
   /* ═══════════════════════ champions ═══════════════════════ */
   async function loadChampions() {
     A.board = await API.admin.leaderboard(A.period, 500);
@@ -968,6 +1022,11 @@
     $('#r-range').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; A.rf.range = b.dataset.v; setSeg('r-range', b.dataset.v); renderResults(); });
     $('#r-table').addEventListener('click', onResultsTable);
     $('#r-export').addEventListener('click', exportResults);
+    $('#r-delete-day').addEventListener('click', openDeleteDay);
+    $('#day-date').addEventListener('change', previewDay);
+    $('#day-form').addEventListener('submit', onDeleteDay);
+    $('#day-cancel').addEventListener('click', () => $('#dlg-day').close());
+    $$('#dlg-day [data-day]').forEach(b => b.addEventListener('click', () => { $('#day-date').value = dayStr(Number(b.dataset.day)); previewDay(); }));
 
     // champions
     $('#c-period').addEventListener('click', async e => {

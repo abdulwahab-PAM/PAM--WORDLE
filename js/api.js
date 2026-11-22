@@ -89,6 +89,7 @@ window.API = (() => {
     function wrap(error) {
       const msg = (error && error.message) || '';
       if (error && error.code === '23505') return makeErr('DUPLICATE', error);
+      if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(msg))) return makeErr('NEEDS_UPDATE', error);
       if (KNOWN.test(msg)) return makeErr(msg, error);
       if (/fetch|network|Failed to/i.test(msg)) return makeErr('NETWORK', error);
       if (/JWT|permission denied|row-level security/i.test(msg)) return makeErr('FORBIDDEN', error);
@@ -178,6 +179,7 @@ window.API = (() => {
         leaderboard: (period, limit) =>
           rpc('get_leaderboard', { p_period: period, p_limit: limit, p_player_id: null }),
         newSeason: name => rpc('admin_new_season', { p_name: name || null }),
+        deleteDay: (day, dryRun) => rpc('admin_delete_day', { p_day: day, p_dry_run: !!dryRun }),
 
         /* categories */
         async listCategories() {
@@ -542,6 +544,12 @@ window.API = (() => {
           });
         },
         async deleteWordImage() { return true; },
+        async deleteDay(dayStr, dryRun) {
+          const hits = db.games.filter(g => day(g.started_at) === dayStr);
+          const res = { day: dayStr, games: hits.length, players: new Set(hits.map(g => g.player_id)).size, deleted: !dryRun };
+          if (!dryRun && hits.length) { db.games = db.games.filter(g => day(g.started_at) !== dayStr); save(); }
+          return wait(res);
+        },
         async getSettings() { return wait({ ...S() }); },
         async saveSettings(patch) { Object.assign(db.settings, patch, { updated_at: nowIso() }); save(); return wait({ ...S() }); },
         async listGames(limit = 1000) {

@@ -238,6 +238,10 @@
           <button type="button" data-v="abandoned" data-i18n="st_abandoned"></button>
         </div>
         <span class="spacer"></span>
+        <button class="btn btn-danger" id="r-delete-day" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M10 13l4 4M14 13l-4 4"/></svg>
+          <span data-i18n="a_delete_day"></span>
+        </button>
         <button class="btn btn-ghost" id="r-export" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
           <span data-i18n="a_export"></span>
@@ -326,6 +330,24 @@
     <div class="dlg-actions">
       <button class="btn btn-ghost" type="button" id="ce-cancel" data-i18n="a_cancel"></button>
       <button class="btn btn-primary" type="submit" id="ce-save" data-i18n="a_save"></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dlg" id="dlg-day">
+  <form id="day-form" method="dialog" novalidate>
+    <h3 data-i18n="a_delete_day_title"></h3>
+    <p class="help" data-i18n="a_delete_day_help"></p>
+    <label class="field"><span data-i18n="a_day"></span><input id="day-date" type="date" dir="ltr" required></label>
+    <div class="seg day-quick">
+      <button type="button" data-day="0" data-i18n="a_range_today"></button>
+      <button type="button" data-day="1" data-i18n="a_yesterday"></button>
+    </div>
+    <div class="day-preview" id="day-preview"></div>
+    <div class="form-alert" id="day-alert" hidden></div>
+    <div class="dlg-actions">
+      <button class="btn btn-ghost" type="button" id="day-cancel" data-i18n="a_cancel"></button>
+      <button class="btn btn-danger" type="submit" id="day-delete" disabled></button>
     </div>
   </form>
 </dialog>

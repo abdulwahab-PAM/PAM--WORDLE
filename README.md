@@ -84,6 +84,7 @@ The champions board ranks players by total points this **season**. Ties are brok
 - **Word images**: open a word with ✎ and upload a picture; players see it above the letter boxes (tap to enlarge). Run `supabase/update-v4-images.sql` once to enable it.
 - **Words**: pick a category, then bulk-paste words (one per line, `word | English hint | Arabic hint`), with live validation. Language is detected automatically. You can activate, deactivate, edit or delete words.
 - **Results**: every game with player, word, guesses, score and time. Filter, search and **export to CSV** (opens correctly in Excel with Arabic).
+- **Delete a day's results** (Results page): pick a day, see how many games it has, then delete them all — scores leave the champions board. Needs `supabase/update-v5-delete-day.sql` run once.
 - **Champions**: rank by today, the last 7 days, the season or all time. Full ID numbers are shown to admins only. Export to CSV, or start a new season.
 - **Settings**: attempts, time limit, plays per day, word language, hints, idle timeout, sound, ID length, time zone and more. Changes reach the kiosk within 5 minutes, or straight away on reload.
 
