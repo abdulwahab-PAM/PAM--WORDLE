@@ -387,10 +387,22 @@ window.API = (() => {
         if (s.plays_per_day > 0 && pt >= s.plays_per_day) { save(); fail('DAILY_LIMIT'); }
         const pool = db.words.filter(w => w.active && w.lang === L);
         if (!pool.length) { save(); fail('NO_WORDS'); }
-        const played = new Set(db.games.filter(g => g.player_id === pid).map(g => g.word_id));
-        const unplayed = pool.filter(w => !played.has(w.id));
-        const list = unplayed.length ? unplayed : pool;
-        const w = list[Math.floor(Math.random() * list.length)];
+        // fair shuffle — same rules as start_game() in schema.sql:
+        // unseen by this player → not one of the last few served → least served → random
+        const recentN = Math.min(3, pool.length - 1);
+        const recent = new Set(db.games
+          .filter(g => g.lang === L && g.word_id != null)
+          .sort((a, b) => b.started_at.localeCompare(a.started_at))
+          .slice(0, recentN).map(g => g.word_id));
+        const served = {}, seen = new Set();
+        db.games.forEach(g => {
+          if (g.word_id == null) return;
+          served[g.word_id] = (served[g.word_id] || 0) + 1;
+          if (g.player_id === pid) seen.add(g.word_id);
+        });
+        const w = pool
+          .map(x => ({ x, a: seen.has(x.id) ? 1 : 0, b: recent.has(x.id) ? 1 : 0, c: served[x.id] || 0, r: Math.random() }))
+          .sort((p, q) => p.a - q.a || p.b - q.b || p.c - q.c || p.r - q.r)[0].x;
         const g = {
           id: uid(), player_id: pid, word_id: w.id, answer: w.word, lang: L, status: 'playing', end_reason: null,
           guesses: [], max_attempts: s.max_attempts, time_limit: s.time_limit_seconds, hint_used: false,

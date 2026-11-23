@@ -326,6 +326,9 @@ declare
   c       public.categories;
   v_lang  text;
   v_today int;
+  v_active   int;
+  v_recent_n int;
+  v_recent   bigint[];
 begin
   select * into s from public.app_settings where id = 1;
   if not exists (select 1 from public.players where id = p_player_id) then
@@ -351,15 +354,37 @@ begin
     raise exception 'DAILY_LIMIT';
   end if;
 
-  select * into w from public.words
-   where active and lang = v_lang
-     and id not in (select word_id from public.games
-                     where player_id = p_player_id and word_id is not null)
-   order by random() limit 1;
+  -- ── Fair shuffle ─────────────────────────────────────────────────────
+  --  1. words this player has never had come first (no repeats until they have seen them all)
+  --  2. the last few words served to anyone are pushed back (no same word twice in a row)
+  --  3. the least-served words come first, so every word is played about equally
+  --  4. ties are broken at random
+  select count(*) into v_active from public.words where active and lang = v_lang;
+  if v_active = 0 then raise exception 'NO_WORDS'; end if;
+  v_recent_n := least(3, v_active - 1);
 
-  if not found then
-    select * into w from public.words where active and lang = v_lang order by random() limit 1;
-  end if;
+  select coalesce(array_agg(r.word_id), '{}'::bigint[]) into v_recent
+    from (select gm.word_id
+            from public.games gm
+           where gm.lang = v_lang and gm.word_id is not null
+           order by gm.started_at desc
+           limit v_recent_n) r;
+
+  select wd.* into w
+    from public.words wd
+    left join (select gm.word_id,
+                      count(*)                         as served,
+                      bool_or(gm.player_id = p_player_id) as seen
+                 from public.games gm
+                where gm.word_id is not null
+                group by gm.word_id) st
+      on st.word_id = wd.id
+   where wd.active and wd.lang = v_lang
+   order by coalesce(st.seen, false),
+            (wd.id = any(v_recent)),
+            coalesce(st.served, 0),
+            random()
+   limit 1;
   if not found then raise exception 'NO_WORDS'; end if;
 
   insert into public.games (player_id, word_id, answer, lang, max_attempts, time_limit)
