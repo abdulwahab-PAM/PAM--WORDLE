@@ -32,6 +32,8 @@
     { g: 'a_g_gameplay', items: [
       { k: 'max_attempts', type: 'number', min: 3, max: 10 },
       { k: 'plays_per_day', type: 'number', min: 0, max: 100 },
+      { k: 'timer_enabled', type: 'bool' },
+      { k: 'time_limit_seconds', type: 'number', min: 10, max: 3600, step: 5 },
       { k: 'require_known_words', type: 'bool' }
     ] },
     { g: 'a_g_hints', items: [
@@ -937,6 +939,17 @@
     $('#s-form').innerHTML = FIELDS.map(g =>
       `<section class="card set-group"><h3>${esc(t(g.g))}</h3>${g.items.map(fieldHtml).join('')}</section>`).join('');
     $('#s-bar').classList.toggle('show', A.dirty);
+    syncTimerField();
+  }
+
+  // the seconds field only matters when the timer is switched on
+  function syncTimerField() {
+    const f = $('#s-form');
+    const on = f.elements.timer_enabled && f.elements.timer_enabled.checked;
+    const sec = f.elements.time_limit_seconds;
+    if (!sec) return;
+    sec.disabled = !on;
+    sec.closest('.set-row').classList.toggle('off', !on);
   }
 
   function collectSettings() {
@@ -1041,6 +1054,7 @@
     const mark = () => { A.dirty = true; $('#s-bar').classList.add('show'); };
     $('#s-form').addEventListener('input', mark);
     $('#s-form').addEventListener('change', mark);
+    $('#s-form').addEventListener('change', e => { if (e.target.name === 'timer_enabled') syncTimerField(); });
     $('#s-save').addEventListener('click', saveSettings);
 
     window.addEventListener('beforeunload', e => { if (A.dirty) { e.preventDefault(); e.returnValue = ''; } });

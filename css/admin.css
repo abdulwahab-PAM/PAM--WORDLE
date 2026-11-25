@@ -329,3 +329,7 @@ select option { background: #101a17; color: var(--text); }
 .day-preview.has { background: rgba(229, 65, 74, .1); border-color: rgba(229, 65, 74, .38); color: #ffb3b8; }
 .day-preview.none { color: var(--muted); }
 .dlg input[type="date"] { color-scheme: dark; }
+
+/* timer seconds field greys out while the timer is off */
+.set-row.off { opacity: .45; }
+.set-row input:disabled { cursor: not-allowed; }

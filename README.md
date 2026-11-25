@@ -70,7 +70,7 @@ A bilingual (Arabic / English) word-guessing game for the **Public Authority of 
 | Part | Points |
 |---|---|
 | Attempts | 1000 on the 1st try, −150 for each extra try (minimum 200) |
-| Speed bonus | Up to +300 (−1 per second taken; there is no visible timer) |
+| Speed bonus | Up to +300 — based on time left when the timer is on, otherwise −1 per second taken |
 | Long-word bonus | +100 for each letter above 5 |
 | Hint | −150 (configurable) |
 

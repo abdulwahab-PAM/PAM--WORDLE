@@ -32,7 +32,9 @@
 
   const KB = {
     en: [[...'qwertyuiop'], [...'asdfghjkl'], ['enter', ...'zxcvbnm', 'back']],
-    ar: [[...'ضصثقفغعهخحج'], [...'شسيبلاتنمكط'], [...'ذئءؤرىةوزظد'], ['back', 'enter']]
+    // rows listed LEFT → RIGHT exactly as on the iPhone/iPad Arabic keyboard;
+    // ئ ؤ (long-press letters on iOS) sit bottom-left, where iOS has 123
+    ar: [[...'ضصثقفغعهخحج'], [...'شسيبلاتنمكة'], [...'ءظطذدزروى', 'back'], ['ئ', 'ؤ', 'enter']]
   };
 
   const DEMO_WORDS = {
@@ -48,6 +50,7 @@
     game: null,
     row: 0, cur: [], busy: false, over: false, keys: {}, hint: null,
     idle: null, autoclose: null, homeTimers: [], demoIdx: 0,
+    timer: null, deadline: 0, lastTick: -1,
     lbPeriod: 'season', confirmDone: null, wake: null
   };
 
@@ -132,6 +135,10 @@
 
     // rules
     const rules = [t('rule_1', { n: st.max_attempts }), t('rule_cat'), t('rule_img'), t('rule_2'), t('rule_3'), t('rule_real')];
+    if (st.timer_enabled && st.time_limit_seconds > 0) {
+      const tl = st.time_limit_seconds;
+      rules.push(t('rule_time', { t: tl % 60 === 0 ? `${tl / 60} ${t('minutes')}` : `${tl} ${t('seconds')}` }));
+    }
     $('#rules').replaceChildren(...rules.map(r => h('li', '', r)));
 
     // examples
@@ -175,6 +182,7 @@
 
   function goHome() {
     clearInterval(S.autoclose);
+    stopTimer();
     closeConfirm();
     closeOverlay($('#result'));
     closeOverlay($('#lightbox'));
@@ -328,6 +336,7 @@
     renderCategory();
     $('#hint-banner').hidden = true;
     show('game');
+    startTimer();
   }
 
   function buildBoard() {
@@ -346,9 +355,10 @@
 
   function buildKeyboard() {
     const lang = S.game.lang, kb = $('#keyboard');
-    kb.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    kb.dir = 'ltr';                       // keys keep their physical positions, like a real keyboard
+    kb.dataset.lang = lang;
     kb.replaceChildren(...KB[lang].map(keys => {
-      const row = h('div', 'kb-row' + (keys.every(k => k.length > 1) ? ' actions' : ''));
+      const row = h('div', 'kb-row' + (keys.every(k => k.length > 1) ? ' actions' : '') + (keys.includes('enter') ? ' has-enter' : ''));
       keys.forEach(k => {
         const b = h('button', 'key');
         b.type = 'button';
@@ -506,6 +516,7 @@
     }
 
     S.over = true;
+    stopTimer();
     if (res.status === 'won') {
       S.row++;
       renderAttempts();
@@ -555,6 +566,7 @@
   async function abort(reason) {
     if (!S.game || S.over) return;
     S.over = true; S.busy = true;
+    stopTimer();
     let res = { status: 'lost', reason, word: null, attempt: S.row, score: 0 };
     try { res = { ...res, ...(await API.endGame(S.game.game_id, reason)) }; } catch (e) { /* show result anyway */ }
     if (reason === 'idle') return;
@@ -564,8 +576,39 @@
 
   async function endWith(res) {
     S.over = true;
+    stopTimer();
     Sound.lose();
     showResult(res);
+  }
+
+  /* ── countdown timer (only when switched on in Admin → Settings) ── */
+  const CIRC = 2 * Math.PI * 20;
+  function startTimer() {
+    stopTimer();
+    const tl = S.game && S.game.time_limit;
+    const box = $('#g-timer');
+    box.hidden = !tl;
+    if (!tl) return;
+    box.classList.remove('warn', 'mid');
+    S.deadline = Date.now() + tl * 1000;
+    S.lastTick = -1;
+    tick();
+    S.timer = setInterval(tick, 250);
+  }
+  function stopTimer() { clearInterval(S.timer); S.timer = null; }
+  function tick() {
+    if (!S.game || S.over) return stopTimer();
+    const total = S.game.time_limit * 1000;
+    const left = Math.max(0, S.deadline - Date.now());
+    const secs = Math.ceil(left / 1000);
+    $('#g-timer-prog').style.strokeDashoffset = String(CIRC * (1 - left / total));
+    $('#g-timer-text').textContent = fmtTime(secs);
+    const box = $('#g-timer');
+    box.classList.toggle('mid', left <= total * 0.5 && left > 20000);
+    box.classList.toggle('warn', left <= 20000);
+    if (secs <= 10 && secs > 0 && secs !== S.lastTick) Sound.tick();
+    S.lastTick = secs;
+    if (left <= 0) { stopTimer(); abort('timeout'); }
   }
 
   /* ═══════════════════════ result ═══════════════════════ */
@@ -705,7 +748,7 @@
     clearTimeout(S.idle);
     if (S.screen === 'home') return;
     let secs = S.settings.idle_timeout_seconds || 90;
-    if (S.screen === 'game') secs = Math.max(secs, 120);   // give players time to think
+    if (S.screen === 'game') secs = Math.max(secs, 120, S.game && S.game.time_limit ? S.game.time_limit + 15 : 0);   // the timer ends timed games itself
     S.idle = setTimeout(onIdle, secs * 1000);
   }
 

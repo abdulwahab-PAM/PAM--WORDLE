@@ -12,7 +12,8 @@ window.API = (() => {
     event_title_en: 'PAM Word Challenge',
     event_title_ar: 'تحدي الكلمات',
     max_attempts: 6,
-    time_limit_seconds: 0,
+    timer_enabled: false,
+    time_limit_seconds: 120,
     plays_per_day: 3,
     word_lang_mode: 'ar',
     hints_enabled: true,
@@ -89,7 +90,7 @@ window.API = (() => {
     function wrap(error) {
       const msg = (error && error.message) || '';
       if (error && error.code === '23505') return makeErr('DUPLICATE', error);
-      if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(msg))) return makeErr('NEEDS_UPDATE', error);
+      if (error && (error.code === 'PGRST202' || error.code === 'PGRST204' || /Could not find the/i.test(msg))) return makeErr('NEEDS_UPDATE', error);
       if (KNOWN.test(msg)) return makeErr(msg, error);
       if (/fetch|network|Failed to/i.test(msg)) return makeErr('NETWORK', error);
       if (/JWT|permission denied|row-level security/i.test(msg)) return makeErr('FORBIDDEN', error);
@@ -295,7 +296,7 @@ window.API = (() => {
       const map = new Map(SEED.map(x => [util.normalize(x[0]) + ':' + x[1], x[4]]));
       db.words.forEach(w => { if (w.category_id == null) w.category_id = map.get(w.word + ':' + w.lang) || null; });
     }
-    db.settings.time_limit_seconds = 0;
+    if (db.settings.timer_enabled === undefined) { db.settings.timer_enabled = false; db.settings.time_limit_seconds = 120; }
     const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { /* ignore */ } };
 
     // dictionary lives in its own key (can be ~1 MB)
@@ -405,7 +406,7 @@ window.API = (() => {
           .sort((p, q) => p.a - q.a || p.b - q.b || p.c - q.c || p.r - q.r)[0].x;
         const g = {
           id: uid(), player_id: pid, word_id: w.id, answer: w.word, lang: L, status: 'playing', end_reason: null,
-          guesses: [], max_attempts: s.max_attempts, time_limit: s.time_limit_seconds, hint_used: false,
+          guesses: [], max_attempts: s.max_attempts, time_limit: s.timer_enabled ? Math.max(10, s.time_limit_seconds) : 0, hint_used: false,
           score: 0, score_detail: null, started_at: nowIso(), finished_at: null, duration_ms: null
         };
         db.games.push(g); save();

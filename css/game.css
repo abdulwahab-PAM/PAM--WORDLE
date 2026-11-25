@@ -314,16 +314,16 @@ body[data-screen="game"] .foot { display: none; }
   box-shadow: 0 .26rem 0 rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .22);
   transition: transform .07s, box-shadow .07s, background .3s, color .3s;
 }
-.keyboard[dir="ltr"] .key { text-transform: uppercase; }
+.keyboard[data-lang="en"] .key { text-transform: uppercase; }
 /* Arabic keys: taller line box + lift, so low letters are centred and never cut */
-.keyboard[dir="rtl"] .key { font-size: calc(var(--key-h) * .46); font-weight: 700; line-height: 1.5; padding-bottom: calc(var(--key-h) * .12); }
+.keyboard[data-lang="ar"] .key { font-size: calc(var(--key-h) * .46); font-weight: 700; line-height: 1.5; padding-bottom: calc(var(--key-h) * .12); }
 .key.down { transform: translateY(.2rem); box-shadow: 0 .06rem 0 rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .22); background: linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, .12)); }
 .key.wide { flex: 1.65 1 0; max-width: 10rem; font-size: calc(var(--key-h) * .27); padding-bottom: 0; line-height: 1.6; }
-.keyboard[dir="rtl"] .key.wide { font-size: calc(var(--key-h) * .32); padding-bottom: 0; }
+.keyboard[data-lang="ar"] .key.wide { font-size: calc(var(--key-h) * .32); padding-bottom: 0; }
 .kb-row.actions .key { max-width: none; flex: 1; height: calc(var(--key-h) * 1.08); }
 .kb-row.actions .key-enter { flex: 1.8; }
 .key svg { width: calc(var(--key-h) * .44); height: calc(var(--key-h) * .44); flex: none; }
-.keyboard[dir="rtl"] .key svg { transform: scaleX(-1); }
+.keyboard[data-lang="ar"] .key svg { transform: scaleX(-1); }
 .key-enter { color: #fff; background: linear-gradient(180deg, #62d687, var(--accent) 55%, var(--accent-lo)); border-color: transparent; text-shadow: 0 1px 2px rgba(0, 0, 0, .25); }
 .key[data-state="correct"] { background: linear-gradient(180deg, var(--c-correct-hi), var(--c-correct-lo)); border-color: transparent; }
 .key[data-state="present"] { background: linear-gradient(180deg, var(--c-present-hi), var(--c-present-lo)); border-color: transparent; }
@@ -586,3 +586,25 @@ body[data-screen="game"] .foot { display: none; }
   #screen-game.has-image .keyboard { --key-h: clamp(2.5rem, 9.2vh, 4.9rem); gap: clamp(4px, .42rem, 12px); }
 }
 @media (orientation: landscape) and (max-height: 520px) { .clue { height: 4.6rem; } .clue-cap { padding-top: .6rem; } }
+
+/* ── keyboard rows that mimic the phone layout ── */
+.kb-row.has-enter .key-enter { flex: 3.2 1 0; max-width: none; }      /* big return key bottom-right, like iOS */
+.kb-row.has-enter .key:not(.key-enter) { flex: 1 1 0; }
+.kb-row .key[data-key="back"] { flex: 1.5 1 0; }
+
+/* ═════════════════════════ COUNTDOWN TIMER ═════════════════════════ */
+.timer {
+  position: relative; width: 4.5rem; height: 4.5rem; flex: none; display: grid; place-items: center;
+  border-radius: 50%; background: rgba(0, 0, 0, .3); box-shadow: inset 0 0 0 1px var(--line);
+}
+.timer svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.timer circle { fill: none; stroke-width: 3.6; }
+.timer .track { stroke: rgba(255, 255, 255, .1); }
+.timer .prog { stroke: var(--accent-hi); stroke-linecap: round; stroke-dasharray: 125.66; transition: stroke-dashoffset .3s linear, stroke .3s; filter: drop-shadow(0 0 .25rem rgba(127, 220, 152, .6)); }
+.timer span { position: relative; font-weight: 700; font-size: 1.05rem; line-height: 1; font-variant-numeric: tabular-nums; direction: ltr; }
+.timer.mid .prog { stroke: var(--c-present-hi); filter: drop-shadow(0 0 .25rem rgba(240, 169, 44, .6)); }
+.timer.warn .prog { stroke: var(--danger); filter: drop-shadow(0 0 .3rem rgba(229, 65, 74, .7)); }
+.timer.warn span { color: #ffb3b8; }
+.timer.warn { animation: tpulse 1s ease-in-out infinite; }
+@keyframes tpulse { 50% { transform: scale(1.08); } }
+@media (max-width: 420px) { .timer { width: 3.9rem; height: 3.9rem; } .timer span { font-size: .92rem; } }

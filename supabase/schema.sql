@@ -30,7 +30,7 @@ create table if not exists public.app_settings (
   event_title_en         text    not null default 'PAM Word Challenge',
   event_title_ar         text    not null default 'تحدي الكلمات',
   max_attempts           int     not null default 6    check (max_attempts between 3 and 10),
-  time_limit_seconds     int     not null default 0    check (time_limit_seconds between 0 and 3600),  -- timer disabled
+  time_limit_seconds     int     not null default 120  check (time_limit_seconds between 0 and 3600),  -- used when timer_enabled
   plays_per_day          int     not null default 3    check (plays_per_day between 0 and 100),
   word_lang_mode         text    not null default 'ar' check (word_lang_mode in ('ui','en','ar')),
   hints_enabled          boolean not null default true,
@@ -52,9 +52,11 @@ insert into public.app_settings (id) values (1) on conflict (id) do nothing;
 
 -- v2 upgrade (safe if you already ran an older version of this file):
 -- no timer, and guesses must be real words
-alter table public.app_settings alter column time_limit_seconds  set default 0;
+alter table public.app_settings add column if not exists timer_enabled boolean not null default false;
+alter table public.app_settings alter column time_limit_seconds  set default 120;
 alter table public.app_settings alter column require_known_words set default true;
-update public.app_settings set time_limit_seconds = 0, require_known_words = true where id = 1;
+update public.app_settings set require_known_words = true where id = 1;
+update public.app_settings set time_limit_seconds = 120 where id = 1 and time_limit_seconds = 0;
 
 -- 1.2 Admins (links to Supabase Auth users) ─────────────────────────────────
 create table if not exists public.admins (
@@ -388,7 +390,8 @@ begin
   if not found then raise exception 'NO_WORDS'; end if;
 
   insert into public.games (player_id, word_id, answer, lang, max_attempts, time_limit)
-  values (p_player_id, w.id, w.word, v_lang, s.max_attempts, s.time_limit_seconds)
+  values (p_player_id, w.id, w.word, v_lang, s.max_attempts,
+          case when s.timer_enabled then greatest(s.time_limit_seconds, 10) else 0 end)
   returning * into g;
 
   update public.players set last_seen_at = now() where id = p_player_id;
